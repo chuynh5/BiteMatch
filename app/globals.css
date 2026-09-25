@@ -328,7 +328,7 @@ button {
 
 .phone-card {
   aspect-ratio: 0.88;
-  background: #fff6ec;
+  background: #fffaf5;
   border-radius: 24px;
   overflow: hidden;
   position: relative;
@@ -354,7 +354,7 @@ button {
 }
 
 .phone-card::after {
-  background: linear-gradient(180deg, transparent 44%, rgba(118, 91, 73, 0.62));
+  background: linear-gradient(180deg, transparent 44%, rgba(33, 28, 24, 0.58));
   content: "";
   inset: 0;
   position: absolute;
@@ -362,8 +362,10 @@ button {
 
 .food-clipart {
   background:
-    radial-gradient(circle at 30% 26%, rgba(255, 255, 255, 0.82), transparent 16%),
-    linear-gradient(145deg, #fff7ed 0%, #f9e7d6 100%);
+    linear-gradient(90deg, rgba(33, 28, 24, 0.045) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(33, 28, 24, 0.045) 1px, transparent 1px),
+    #fffaf5;
+  background-size: 22px 22px;
   inset: 0;
   position: absolute;
 }
@@ -373,10 +375,9 @@ button {
 }
 
 .plate {
-  background: #fffdf8;
-  border: 2px solid #efe1d2;
+  background: transparent;
+  border: 2px solid rgba(33, 28, 24, 0.72);
   border-radius: 50%;
-  box-shadow: inset 0 -14px 28px rgba(229, 204, 182, 0.34);
   height: 166px;
   left: 50%;
   top: 39%;
@@ -384,11 +385,19 @@ button {
   width: 166px;
 }
 
+.plate::after {
+  border: 1px solid rgba(33, 28, 24, 0.26);
+  border-radius: 50%;
+  content: "";
+  inset: 20px;
+  position: absolute;
+}
+
 .pasta {
-  background: #e7a84f;
+  background: transparent;
+  border: 2px solid rgba(33, 28, 24, 0.78);
   border-radius: 999px;
-  box-shadow: inset 0 -3px 0 rgba(160, 100, 45, 0.18);
-  height: 15px;
+  height: 13px;
   left: 50%;
   top: 38%;
   transform-origin: center;
@@ -411,10 +420,11 @@ button {
 }
 
 .sauce-dot {
-  background: #d97863;
+  background: transparent;
+  border: 2px solid rgba(33, 28, 24, 0.72);
   border-radius: 50%;
-  height: 13px;
-  width: 13px;
+  height: 12px;
+  width: 12px;
 }
 
 .dot-one {
@@ -428,10 +438,11 @@ button {
 }
 
 .basil {
-  background: #6e9b8e;
+  background: transparent;
+  border: 2px solid rgba(33, 28, 24, 0.72);
   border-radius: 999px 999px 999px 0;
-  height: 18px;
-  width: 10px;
+  height: 19px;
+  width: 11px;
 }
 
 .leaf-one {
@@ -447,9 +458,9 @@ button {
 }
 
 .fork-line {
-  background: rgba(117, 109, 101, 0.22);
+  background: rgba(33, 28, 24, 0.34);
   border-radius: 999px;
-  height: 4px;
+  height: 2px;
   right: 28px;
   width: 64px;
 }
