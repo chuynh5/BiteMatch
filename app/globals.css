@@ -218,15 +218,22 @@ button {
 
 .hero-visual {
   aspect-ratio: 0.78;
-  border: 1px solid rgba(255, 255, 255, 0.7);
+  align-items: center;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.72), rgba(255, 250, 245, 0.42)),
+    radial-gradient(circle at 28% 20%, rgba(217, 120, 99, 0.18), transparent 30%),
+    radial-gradient(circle at 84% 78%, rgba(110, 155, 142, 0.18), transparent 30%);
+  border: 1px solid rgba(255, 255, 255, 0.78);
   border-radius: 32px;
   box-shadow: var(--shadow);
+  display: flex;
+  justify-content: center;
   min-height: 540px;
   overflow: hidden;
+  padding: 42px;
   position: relative;
 }
 
-.hero-visual::after,
 .restaurant-image::after,
 .match-photo::after {
   background: linear-gradient(180deg, transparent 35%, rgba(0, 0, 0, 0.48));
@@ -235,10 +242,146 @@ button {
   position: absolute;
 }
 
-.hero-visual img,
 .restaurant-image img,
 .match-photo img {
   object-fit: cover;
+}
+
+.phone-mockup {
+  background: #211c18;
+  border: 10px solid #211c18;
+  border-radius: 42px;
+  box-shadow:
+    0 28px 70px rgba(33, 28, 24, 0.24),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  display: grid;
+  gap: 14px;
+  max-width: 320px;
+  padding: 14px;
+  position: relative;
+  width: min(78%, 320px);
+  z-index: 1;
+}
+
+.phone-mockup::before {
+  background: #211c18;
+  border-radius: 999px;
+  content: "";
+  height: 22px;
+  left: 50%;
+  position: absolute;
+  top: 8px;
+  transform: translateX(-50%);
+  width: 86px;
+  z-index: 3;
+}
+
+.phone-status,
+.phone-match-banner {
+  background: var(--paper);
+  border-radius: 24px;
+  color: var(--ink);
+  padding: 16px;
+}
+
+.phone-status {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding-top: 24px;
+}
+
+.phone-status span {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.phone-status strong {
+  background: #f1e4da;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  padding: 7px 10px;
+}
+
+.phone-card {
+  aspect-ratio: 0.84;
+  border-radius: 28px;
+  overflow: hidden;
+  position: relative;
+}
+
+.phone-card::after {
+  background: linear-gradient(180deg, transparent 42%, rgba(0, 0, 0, 0.68));
+  content: "";
+  inset: 0;
+  position: absolute;
+}
+
+.phone-card img {
+  object-fit: cover;
+}
+
+.phone-card-copy {
+  bottom: 18px;
+  color: white;
+  left: 18px;
+  position: absolute;
+  right: 18px;
+  z-index: 1;
+}
+
+.phone-card-copy span,
+.phone-card-copy small {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 850;
+  opacity: 0.9;
+}
+
+.phone-card-copy strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 2.3rem;
+  line-height: 0.98;
+  margin: 5px 0;
+}
+
+.phone-vote-row {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.phone-vote-row span {
+  align-items: center;
+  background: var(--paper);
+  border-radius: 999px;
+  color: var(--tomato-dark);
+  display: inline-flex;
+  height: 48px;
+  justify-content: center;
+}
+
+.phone-vote-row span:first-child {
+  color: var(--muted);
+}
+
+.phone-match-banner {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+.phone-match-banner strong,
+.phone-match-banner span {
+  display: block;
+}
+
+.phone-match-banner span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  margin-top: 3px;
 }
 
 .floating-card {
@@ -274,6 +417,11 @@ button {
 .vote-card {
   bottom: 24px;
   left: 22px;
+}
+
+.code-card {
+  bottom: 108px;
+  right: 22px;
 }
 
 .avatar-stack {
@@ -944,10 +1092,24 @@ button {
   .hero-visual {
     aspect-ratio: 0.92;
     min-height: 430px;
+    padding: 28px;
   }
 
   .floating-card {
     max-width: calc(100% - 32px);
+  }
+
+  .phone-mockup {
+    border-radius: 34px;
+    width: min(86%, 290px);
+  }
+
+  .phone-card-copy strong {
+    font-size: 2rem;
+  }
+
+  .code-card {
+    display: none;
   }
 
   .setup-panel,

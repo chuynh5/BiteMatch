@@ -259,13 +259,41 @@ function Landing({
       </div>
 
       <div className="hero-visual" aria-label="BiteMatch preview">
-        <Image
-          src="https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=1200&q=80"
-          alt="Friends sharing food at a restaurant table"
-          fill
-          priority
-          sizes="(max-width: 900px) 100vw, 44vw"
-        />
+        <div className="phone-mockup" aria-hidden="true">
+          <div className="phone-status">
+            <span>BiteMatch</span>
+            <strong>4827</strong>
+          </div>
+          <div className="phone-card">
+            <Image
+              src="https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?auto=format&fit=crop&w=700&q=80"
+              alt=""
+              fill
+              priority
+              sizes="280px"
+            />
+            <div className="phone-card-copy">
+              <span>Italian · $$</span>
+              <strong>Mida</strong>
+              <small>South End · 1.2 mi</small>
+            </div>
+          </div>
+          <div className="phone-vote-row">
+            <span>
+              <X size={18} />
+            </span>
+            <span>
+              <Heart size={18} />
+            </span>
+          </div>
+          <div className="phone-match-banner">
+            <PartyPopper size={18} />
+            <div>
+              <strong>3 friends liked this</strong>
+              <span>Vote to see if it matches</span>
+            </div>
+          </div>
+        </div>
         <div className="floating-card match-card">
           <PartyPopper size={20} />
           <div>
@@ -283,6 +311,10 @@ function Landing({
             <strong>Everyone votes privately</strong>
             <span>Simple yeses, no pressure</span>
           </div>
+        </div>
+        <div className="floating-card code-card">
+          <strong>Join with a link or code</strong>
+          <span>No account needed to vote</span>
         </div>
       </div>
     </div>
