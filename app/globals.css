@@ -230,7 +230,7 @@ button {
   justify-content: center;
   min-height: 540px;
   overflow: hidden;
-  padding: 42px;
+  padding: 42px 34px;
   position: relative;
 }
 
@@ -248,47 +248,48 @@ button {
 }
 
 .phone-mockup {
-  background: #211c18;
-  border: 10px solid #211c18;
-  border-radius: 42px;
+  background: rgba(255, 250, 245, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 36px;
   box-shadow:
-    0 28px 70px rgba(33, 28, 24, 0.24),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+    0 24px 70px rgba(33, 28, 24, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.7);
   display: grid;
-  gap: 14px;
-  max-width: 320px;
+  gap: 12px;
+  max-width: 286px;
   padding: 14px;
   position: relative;
-  width: min(78%, 320px);
+  width: min(72%, 286px);
   z-index: 1;
 }
 
 .phone-mockup::before {
-  background: #211c18;
+  background: rgba(33, 28, 24, 0.12);
   border-radius: 999px;
   content: "";
-  height: 22px;
+  height: 5px;
   left: 50%;
   position: absolute;
-  top: 8px;
+  top: 11px;
   transform: translateX(-50%);
-  width: 86px;
+  width: 58px;
   z-index: 3;
 }
 
 .phone-status,
 .phone-match-banner {
-  background: var(--paper);
-  border-radius: 24px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 22px;
   color: var(--ink);
-  padding: 16px;
+  padding: 14px;
 }
 
 .phone-status {
   align-items: center;
   display: flex;
   justify-content: space-between;
-  padding-top: 24px;
+  padding-top: 18px;
 }
 
 .phone-status span {
@@ -305,8 +306,8 @@ button {
 }
 
 .phone-card {
-  aspect-ratio: 0.84;
-  border-radius: 28px;
+  aspect-ratio: 0.88;
+  border-radius: 24px;
   overflow: hidden;
   position: relative;
 }
@@ -342,7 +343,7 @@ button {
 .phone-card-copy strong {
   display: block;
   font-family: var(--font-display);
-  font-size: 2.3rem;
+  font-size: 2.05rem;
   line-height: 0.98;
   margin: 5px 0;
 }
@@ -355,11 +356,12 @@ button {
 
 .phone-vote-row span {
   align-items: center;
-  background: var(--paper);
+  background: white;
+  border: 1px solid var(--line);
   border-radius: 999px;
   color: var(--tomato-dark);
   display: inline-flex;
-  height: 48px;
+  height: 44px;
   justify-content: center;
 }
 
@@ -382,6 +384,62 @@ button {
   color: var(--muted);
   font-size: 0.78rem;
   margin-top: 3px;
+}
+
+.side-flow-card {
+  background: rgba(255, 250, 245, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.86);
+  border-radius: 22px;
+  box-shadow: 0 18px 44px rgba(33, 28, 24, 0.1);
+  left: 22px;
+  padding: 18px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 210px;
+}
+
+.side-flow-card > span {
+  color: var(--tomato-dark);
+  display: block;
+  font-size: 0.76rem;
+  font-weight: 900;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.side-flow-card ol {
+  counter-reset: flow;
+  display: grid;
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.side-flow-card li {
+  align-items: center;
+  color: var(--ink);
+  display: grid;
+  font-size: 0.9rem;
+  font-weight: 800;
+  gap: 10px;
+  grid-template-columns: 26px 1fr;
+}
+
+.side-flow-card li::before {
+  align-items: center;
+  background: #f1e4da;
+  border-radius: 50%;
+  color: var(--tomato-dark);
+  content: counter(flow);
+  counter-increment: flow;
+  display: inline-flex;
+  font-size: 0.74rem;
+  font-weight: 950;
+  height: 26px;
+  justify-content: center;
+  width: 26px;
 }
 
 .floating-card {
@@ -414,13 +472,8 @@ button {
   top: 24px;
 }
 
-.vote-card {
-  bottom: 24px;
-  left: 22px;
-}
-
 .code-card {
-  bottom: 108px;
+  bottom: 26px;
   right: 22px;
 }
 
@@ -1100,12 +1153,16 @@ button {
   }
 
   .phone-mockup {
-    border-radius: 34px;
-    width: min(86%, 290px);
+    border-radius: 32px;
+    width: min(82%, 280px);
   }
 
   .phone-card-copy strong {
     font-size: 2rem;
+  }
+
+  .side-flow-card {
+    display: none;
   }
 
   .code-card {

@@ -259,10 +259,10 @@ function Landing({
       </div>
 
       <div className="hero-visual" aria-label="BiteMatch preview">
-        <div className="phone-mockup" aria-hidden="true">
+        <div className="phone-mockup">
           <div className="phone-status">
-            <span>BiteMatch</span>
-            <strong>4827</strong>
+            <span>Room 4827</span>
+            <strong>4 voting</strong>
           </div>
           <div className="phone-card">
             <Image
@@ -279,10 +279,10 @@ function Landing({
             </div>
           </div>
           <div className="phone-vote-row">
-            <span>
+            <span aria-label="Pass">
               <X size={18} />
             </span>
-            <span>
+            <span aria-label="Like">
               <Heart size={18} />
             </span>
           </div>
@@ -301,20 +301,19 @@ function Landing({
             <span>Mida is the one</span>
           </div>
         </div>
-        <div className="floating-card vote-card">
-          <span className="avatar-stack">
-            <i />
-            <i />
-            <i />
-          </span>
-          <div>
-            <strong>Everyone votes privately</strong>
-            <span>Simple yeses, no pressure</span>
-          </div>
+        <div className="side-flow-card">
+          <span>How it works</span>
+          <ol>
+            <li>Share a room code</li>
+            <li>Everyone votes privately</li>
+            <li>Reveal the group match</li>
+          </ol>
         </div>
         <div className="floating-card code-card">
-          <strong>Join with a link or code</strong>
-          <span>No account needed to vote</span>
+          <div>
+            <strong>No account to join</strong>
+            <span>Sign in only to save friends</span>
+          </div>
         </div>
       </div>
     </div>
