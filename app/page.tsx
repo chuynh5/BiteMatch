@@ -338,8 +338,8 @@ function Setup({
         </div>
         <h2>Build a dinner room your friends can answer fast.</h2>
         <p>
-          Set the guardrails first, invite the group, then let private voting do
-          the awkward work.
+          Pick the basics, send the room code, and let everyone choose without
+          the group chat back-and-forth.
         </p>
 
         <label className="input-label" htmlFor="name">
