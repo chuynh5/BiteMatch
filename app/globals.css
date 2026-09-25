@@ -334,25 +334,6 @@ button {
   position: relative;
 }
 
-.swipe-label {
-  border: 2px solid currentColor;
-  border-radius: 999px;
-  font-size: 0.82rem;
-  font-weight: 950;
-  letter-spacing: 0.08em;
-  padding: 7px 13px;
-  position: absolute;
-  right: -8px;
-  text-transform: uppercase;
-  top: 86px;
-  transform: rotate(13deg);
-  z-index: 4;
-}
-
-.like-label {
-  color: #6e9b8e;
-}
-
 .phone-card::after {
   background: linear-gradient(180deg, transparent 44%, rgba(33, 28, 24, 0.58));
   content: "";
@@ -1154,10 +1135,6 @@ button {
   .stack-card {
     height: 390px;
     width: 220px;
-  }
-
-  .swipe-label {
-    right: -4px;
   }
 
   .setup-panel,

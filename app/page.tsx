@@ -268,7 +268,6 @@ function Landing({
             <span>Tonight&apos;s picks</span>
             <strong>4 friends</strong>
           </div>
-          <div className="swipe-label like-label">Like</div>
           <div className="phone-card">
             <Image
               src={restaurants[0].menuImages[0].src}
@@ -292,7 +291,7 @@ function Landing({
               <X size={18} />
             </span>
             <span aria-label="Like">
-              <Heart size={18} />
+              <Heart size={18} fill="currentColor" />
             </span>
           </div>
           <p className="swipe-hint">Swipe through restaurants. Match when everyone says yes.</p>
