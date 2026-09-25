@@ -219,17 +219,13 @@ button {
 .hero-visual {
   aspect-ratio: 0.78;
   align-items: center;
-  background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.72), rgba(255, 250, 245, 0.42)),
-    radial-gradient(circle at 28% 20%, rgba(217, 120, 99, 0.18), transparent 30%),
-    radial-gradient(circle at 84% 78%, rgba(110, 155, 142, 0.18), transparent 30%);
-  border: 1px solid rgba(255, 255, 255, 0.78);
-  border-radius: 32px;
-  box-shadow: var(--shadow);
+  background: transparent;
+  border: 0;
+  box-shadow: none;
   display: flex;
   justify-content: center;
   min-height: 540px;
-  overflow: hidden;
+  overflow: visible;
   padding: 42px 34px;
   position: relative;
 }
