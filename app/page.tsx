@@ -10,6 +10,7 @@ import {
   Heart,
   MapPin,
   PartyPopper,
+  Play,
   Plus,
   Search,
   Share2,
@@ -291,13 +292,6 @@ function Landing({
               <Heart size={18} />
             </span>
           </div>
-          <div className="phone-match-banner">
-            <PartyPopper size={18} />
-            <div>
-              <strong>3 friends liked this</strong>
-              <span>Vote to see if it matches</span>
-            </div>
-          </div>
         </div>
         <div className="floating-card match-card">
           <PartyPopper size={20} />
@@ -307,7 +301,15 @@ function Landing({
           </div>
         </div>
         <div className="side-flow-card">
-          <span>How it works</span>
+          <div className="demo-video-card" aria-label="BiteMatch demo preview">
+            <span className="play-button">
+              <Play size={16} fill="currentColor" />
+            </span>
+            <div className="demo-step demo-step-one">Create room</div>
+            <div className="demo-step demo-step-two">Friends vote</div>
+            <div className="demo-step demo-step-three">Reveal match</div>
+          </div>
+          <span>Quick demo</span>
           <ol>
             <li>Share a room code</li>
             <li>Everyone votes privately</li>
