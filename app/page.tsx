@@ -265,13 +265,18 @@ function Landing({
             <strong>4 voting</strong>
           </div>
           <div className="phone-card">
-            <Image
-              src="https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?auto=format&fit=crop&w=700&q=80"
-              alt=""
-              fill
-              priority
-              sizes="280px"
-            />
+            <div className="food-clipart" aria-hidden="true">
+              <span className="plate" />
+              <span className="pasta pasta-one" />
+              <span className="pasta pasta-two" />
+              <span className="pasta pasta-three" />
+              <span className="sauce-dot dot-one" />
+              <span className="sauce-dot dot-two" />
+              <span className="basil leaf-one" />
+              <span className="basil leaf-two" />
+              <span className="fork-line line-one" />
+              <span className="fork-line line-two" />
+            </div>
             <div className="phone-card-copy">
               <span>Italian · $$</span>
               <strong>Mida</strong>
