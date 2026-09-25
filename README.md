@@ -18,6 +18,22 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+## Live Restaurant Data
+
+BiteMatch can use real nearby restaurants through Google Places API.
+
+1. Copy `.env.example` to `.env.local`.
+2. Add a Google Places API key:
+
+```bash
+GOOGLE_PLACES_API_KEY=your_key_here
+```
+
+3. Restart the dev server.
+4. In the app, choose **Use my location** in room setup.
+
+When the key or browser location is unavailable, the app falls back to the curated demo restaurant dataset so the portfolio demo still works.
+
 ## Product Scope
 
-V1 intentionally avoids accounts and backend complexity. Room, participant, and vote state are simulated in the browser for a smooth portfolio demo, while the data and matching code are separated so Supabase/realtime rooms can be added later.
+V1 intentionally avoids required accounts. Room, participant, and vote state are simulated in the browser for a smooth portfolio demo, while the data and matching code are separated so Supabase/realtime rooms can be added later.

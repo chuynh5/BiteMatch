@@ -608,6 +608,39 @@ button {
   width: 100%;
 }
 
+.location-box {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 1fr auto;
+  margin-top: 24px;
+  padding: 14px;
+}
+
+.location-box span {
+  color: var(--tomato-dark);
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 900;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.location-box p {
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.location-box button:disabled {
+  cursor: progress;
+  opacity: 0.72;
+}
+
 .room-link {
   align-items: center;
   background: #ffffff;
@@ -707,11 +740,35 @@ button {
   line-height: 1.5;
 }
 
+.source-pill {
+  background: #f1e4da;
+  border-radius: 999px;
+  color: var(--muted);
+  display: inline-flex;
+  font-size: 0.76rem;
+  font-weight: 900;
+  margin-bottom: 16px;
+  padding: 8px 10px;
+}
+
+.source-pill.live {
+  background: rgba(110, 155, 142, 0.16);
+  color: var(--mint);
+}
+
 .stage-heading {
   align-items: flex-end;
   display: flex;
   justify-content: space-between;
   margin-bottom: 18px;
+}
+
+.stage-heading p {
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.45;
+  margin: 0;
+  max-width: 520px;
 }
 
 .stage-heading span {
@@ -1155,6 +1212,10 @@ button {
 
   .map-preview {
     grid-template-columns: 88px 1fr 20px;
+  }
+
+  .location-box {
+    grid-template-columns: 1fr;
   }
 
   .pass-button,

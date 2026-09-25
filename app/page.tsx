@@ -27,6 +27,7 @@ import type {
   Preferences,
   PriceLevel,
   Restaurant,
+  RestaurantSource,
   Vote,
   VoteMap
 } from "@/types/bitematch";
@@ -38,40 +39,24 @@ const demoParticipants: Participant[] = [
   { id: "sam", name: "Sam", color: "#7c3aed" }
 ];
 
-const starterVotes: VoteMap = {
-  maya: {
-    mida: "like",
-    tora: "like",
-    lolita: "pass",
-    "thai-dish": "like",
-    buttermilk: "like",
-    greco: "pass",
-    kaju: "like",
-    mela: "like"
-  },
-  jules: {
-    mida: "like",
-    tora: "pass",
-    lolita: "like",
-    "thai-dish": "like",
-    buttermilk: "pass",
-    greco: "like",
-    kaju: "like",
-    mela: "pass"
-  },
-  sam: {
-    mida: "like",
-    tora: "like",
-    lolita: "like",
-    "thai-dish": "pass",
-    buttermilk: "like",
-    greco: "like",
-    kaju: "pass",
-    mela: "like"
-  }
-};
-
 const roomCode = "4827";
+const metersPerMile = 1609.34;
+
+function createFriendVotes(restaurantsToVoteOn: Restaurant[]): VoteMap {
+  return ["maya", "jules", "sam"].reduce<VoteMap>((allVotes, participantId) => {
+    allVotes[participantId] = restaurantsToVoteOn.reduce<Record<string, Vote>>(
+      (restaurantVotes, restaurant, index) => {
+        restaurantVotes[restaurant.id] =
+          index === 0 || (restaurant.id.charCodeAt(0) + participantId.length + index) % 3 !== 0
+            ? "like"
+            : "pass";
+        return restaurantVotes;
+      },
+      {}
+    );
+    return allVotes;
+  }, {});
+}
 
 export default function Home() {
   const [step, setStep] = useState<"landing" | "setup" | "room">("landing");
@@ -83,7 +68,18 @@ export default function Home() {
     maxDistance: 3
   });
   const [activeIndex, setActiveIndex] = useState(0);
-  const [votes, setVotes] = useState<VoteMap>(starterVotes);
+  const [votes, setVotes] = useState<VoteMap>({});
+  const [restaurantOptions, setRestaurantOptions] = useState<Restaurant[]>(
+    restaurants.map((restaurant) => ({ ...restaurant, source: "curated" }))
+  );
+  const [restaurantSource, setRestaurantSource] =
+    useState<RestaurantSource>("curated");
+  const [locationStatus, setLocationStatus] = useState<
+    "idle" | "locating" | "live" | "fallback" | "error"
+  >("idle");
+  const [locationMessage, setLocationMessage] = useState(
+    "Using curated demo restaurants until location is enabled."
+  );
 
   const participants = useMemo(
     () => [
@@ -94,18 +90,26 @@ export default function Home() {
   );
 
   const filteredRestaurants = useMemo(
-    () => filterRestaurants(restaurants, preferences),
-    [preferences]
+    () => filterRestaurants(restaurantOptions, preferences),
+    [preferences, restaurantOptions]
+  );
+
+  const roomVotes = useMemo(
+    () => ({
+      ...createFriendVotes(filteredRestaurants),
+      ...votes
+    }),
+    [filteredRestaurants, votes]
   );
 
   const match = useMemo(
     () =>
       getMatch(
         filteredRestaurants,
-        votes,
+        roomVotes,
         participants.map((participant) => participant.id)
       ),
-    [filteredRestaurants, participants, votes]
+    [filteredRestaurants, participants, roomVotes]
   );
 
   const activeRestaurant =
@@ -147,8 +151,62 @@ export default function Home() {
   }
 
   function resetDemo() {
-    setVotes(starterVotes);
+    setVotes({});
     setActiveIndex(0);
+  }
+
+  async function loadNearbyRestaurants() {
+    if (!("geolocation" in navigator)) {
+      setLocationStatus("error");
+      setLocationMessage("Location is not available in this browser, so the demo dataset is showing.");
+      return;
+    }
+
+    setLocationStatus("locating");
+    setLocationMessage("Checking nearby restaurants...");
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const params = new URLSearchParams({
+            lat: String(position.coords.latitude),
+            lng: String(position.coords.longitude),
+            radius: String(Math.round(preferences.maxDistance * metersPerMile)),
+            cuisines: preferences.cuisines.join(","),
+            prices: preferences.prices.join(",")
+          });
+          const response = await fetch(`/api/restaurants?${params.toString()}`);
+          const data = (await response.json()) as {
+            restaurants: Restaurant[];
+            source: RestaurantSource;
+            message?: string;
+          };
+
+          setRestaurantOptions(data.restaurants);
+          setRestaurantSource(data.source);
+          setVotes({});
+          setActiveIndex(0);
+          setLocationStatus(data.source === "google" ? "live" : "fallback");
+          setLocationMessage(
+            data.source === "google"
+              ? "Showing live nearby restaurants from Google Places."
+              : data.message ?? "Using curated demo restaurants."
+          );
+        } catch {
+          setLocationStatus("error");
+          setLocationMessage("Live lookup failed, so the curated demo restaurants are still showing.");
+        }
+      },
+      () => {
+        setLocationStatus("fallback");
+        setLocationMessage("Location permission was skipped, so the curated demo restaurants are showing.");
+      },
+      {
+        enableHighAccuracy: false,
+        maximumAge: 1000 * 60 * 10,
+        timeout: 10000
+      }
+    );
   }
 
   return (
@@ -187,6 +245,9 @@ export default function Home() {
             setPreferences={setPreferences}
             onCuisineToggle={toggleCuisine}
             onPriceToggle={togglePrice}
+            onUseLocation={loadNearbyRestaurants}
+            locationStatus={locationStatus}
+            locationMessage={locationMessage}
             onEnterRoom={() => {
               setActiveIndex(0);
               setStep("room");
@@ -202,8 +263,11 @@ export default function Home() {
             activeRestaurant={activeRestaurant}
             activeIndex={activeIndex}
             votes={votes}
+            roomVotes={roomVotes}
             match={match}
             completedVotes={completedVotes}
+            restaurantSource={restaurantSource}
+            locationMessage={locationMessage}
             onVote={handleVote}
             onReset={resetDemo}
             onEditPreferences={() => setStep("setup")}
@@ -317,6 +381,9 @@ function Setup({
   setPreferences,
   onCuisineToggle,
   onPriceToggle,
+  onUseLocation,
+  locationStatus,
+  locationMessage,
   onEnterRoom
 }: {
   name: string;
@@ -327,6 +394,9 @@ function Setup({
   setPreferences: (preferences: Preferences) => void;
   onCuisineToggle: (cuisine: Cuisine) => void;
   onPriceToggle: (price: PriceLevel) => void;
+  onUseLocation: () => void;
+  locationStatus: "idle" | "locating" | "live" | "fallback" | "error";
+  locationMessage: string;
   onEnterRoom: () => void;
 }) {
   return (
@@ -337,10 +407,7 @@ function Setup({
           Room setup
         </div>
         <h2>Build a dinner room your friends can answer fast.</h2>
-        <p>
-          Pick the basics, send the room code, and let everyone choose without
-          the group chat back-and-forth.
-        </p>
+        <p>Pick your vibe. Share the code. Find the match.</p>
 
         <label className="input-label" htmlFor="name">
           Your display name
@@ -434,6 +501,21 @@ function Setup({
           />
         </div>
 
+        <div className="location-box">
+          <div>
+            <span>Restaurant source</span>
+            <p>{locationMessage}</p>
+          </div>
+          <button
+            className="secondary-button"
+            onClick={onUseLocation}
+            disabled={locationStatus === "locating"}
+          >
+            <MapPin size={17} />
+            {locationStatus === "locating" ? "Finding..." : "Use my location"}
+          </button>
+        </div>
+
         <div className="room-link">
           <div>
             <span>Invite link</span>
@@ -460,8 +542,11 @@ function Room({
   activeRestaurant,
   activeIndex,
   votes,
+  roomVotes,
   match,
   completedVotes,
+  restaurantSource,
+  locationMessage,
   onVote,
   onReset,
   onEditPreferences
@@ -472,8 +557,11 @@ function Room({
   activeRestaurant?: Restaurant;
   activeIndex: number;
   votes: VoteMap;
+  roomVotes: VoteMap;
   match?: Restaurant;
   completedVotes: number;
+  restaurantSource: RestaurantSource;
+  locationMessage: string;
   onVote: (restaurantId: string, vote: Vote) => void;
   onReset: () => void;
   onEditPreferences: () => void;
@@ -512,6 +600,9 @@ function Room({
             {preferences.cuisines.slice(0, 3).join(", ") || "Any cuisine"} ·{" "}
             {preferences.prices.join("/")} · {preferences.maxDistance} mi
           </p>
+          <div className={restaurantSource === "google" ? "source-pill live" : "source-pill"}>
+            {restaurantSource === "google" ? "Live nearby restaurants" : "Curated demo data"}
+          </div>
           <button className="secondary-button" onClick={onEditPreferences}>
             Edit preferences
           </button>
@@ -522,7 +613,7 @@ function Room({
         {match ? (
           <MatchResult
             restaurant={match}
-            votes={votes}
+            votes={roomVotes}
             participants={participants}
             onReset={onReset}
           />
@@ -532,6 +623,7 @@ function Room({
               <div>
                 <div className="section-kicker">Private voting</div>
                 <h2>Vote quietly. Match when it clicks.</h2>
+                <p>{locationMessage}</p>
               </div>
               <span>
                 {completedVotes}/{restaurants.length} reviewed
@@ -583,7 +675,7 @@ function Room({
           {restaurants.map((restaurant) => {
             const stats = getVoteStats(
               restaurant,
-              votes,
+              roomVotes,
               participants.map((participant) => participant.id)
             );
 
@@ -614,6 +706,7 @@ function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
           src={restaurant.image}
           alt={`${restaurant.name} food preview`}
           fill
+          unoptimized={restaurant.source === "google"}
           sizes="(max-width: 900px) 92vw, 42vw"
         />
       </div>
@@ -641,7 +734,13 @@ function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
         <div className="menu-preview" aria-label={`${restaurant.name} menu photos`}>
           {restaurant.menuImages.map((photo) => (
             <div className="menu-photo" key={photo.src}>
-              <Image src={photo.src} alt={photo.alt} fill sizes="130px" />
+              <Image
+                src={photo.src}
+                alt={photo.alt}
+                fill
+                unoptimized={restaurant.source === "google"}
+                sizes="130px"
+              />
             </div>
           ))}
         </div>
@@ -690,6 +789,7 @@ function MatchResult({
           src={restaurant.image}
           alt={`${restaurant.name} matched restaurant`}
           fill
+          unoptimized={restaurant.source === "google"}
           sizes="(max-width: 900px) 92vw, 48vw"
         />
       </div>
