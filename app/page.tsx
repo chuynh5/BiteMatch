@@ -10,7 +10,6 @@ import {
   Heart,
   MapPin,
   PartyPopper,
-  Play,
   Plus,
   Search,
   Share2,
@@ -260,11 +259,16 @@ function Landing({
       </div>
 
       <div className="hero-visual" aria-label="BiteMatch preview">
+        <div className="swipe-card-stack" aria-hidden="true">
+          <span className="stack-card stack-card-one" />
+          <span className="stack-card stack-card-two" />
+        </div>
         <div className="phone-mockup">
           <div className="phone-status">
-            <span>Room 4827</span>
-            <strong>4 voting</strong>
+            <span>Tonight&apos;s picks</span>
+            <strong>4 friends</strong>
           </div>
+          <div className="swipe-label like-label">Like</div>
           <div className="phone-card">
             <div className="food-clipart" aria-hidden="true">
               <span className="plate" />
@@ -282,6 +286,10 @@ function Landing({
               <span>Italian · $$</span>
               <strong>Mida</strong>
               <small>South End · 1.2 mi</small>
+              <div className="profile-tags">
+                <em>Fresh pasta</em>
+                <em>Shareable</em>
+              </div>
             </div>
           </div>
           <div className="phone-vote-row">
@@ -292,34 +300,13 @@ function Landing({
               <Heart size={18} />
             </span>
           </div>
+          <p className="swipe-hint">Swipe through restaurants. Match when everyone says yes.</p>
         </div>
         <div className="floating-card match-card">
           <PartyPopper size={20} />
           <div>
             <strong>It&apos;s a BiteMatch</strong>
             <span>Mida is the one</span>
-          </div>
-        </div>
-        <div className="side-flow-card">
-          <div className="demo-video-card" aria-label="BiteMatch demo preview">
-            <span className="play-button">
-              <Play size={16} fill="currentColor" />
-            </span>
-            <div className="demo-step demo-step-one">Create room</div>
-            <div className="demo-step demo-step-two">Friends vote</div>
-            <div className="demo-step demo-step-three">Reveal match</div>
-          </div>
-          <span>Quick demo</span>
-          <ol>
-            <li>Share a room code</li>
-            <li>Everyone votes privately</li>
-            <li>Reveal the group match</li>
-          </ol>
-        </div>
-        <div className="floating-card code-card">
-          <div>
-            <strong>No account to join</strong>
-            <span>Sign in only to save friends</span>
           </div>
         </div>
       </div>
