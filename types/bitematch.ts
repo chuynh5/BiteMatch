@@ -30,9 +30,15 @@ export type Restaurant = {
   cuisine: Cuisine;
   price: PriceLevel;
   neighborhood: string;
+  address: string;
   rating: number;
   distance: number;
   image: string;
+  menuImages: {
+    src: string;
+    alt: string;
+  }[];
+  mapQuery: string;
   tags: string[];
   vibe: string;
 };

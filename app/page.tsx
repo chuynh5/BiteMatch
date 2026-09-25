@@ -6,6 +6,7 @@ import {
   Check,
   Clock3,
   Copy,
+  ExternalLink,
   Heart,
   MapPin,
   PartyPopper,
@@ -225,12 +226,12 @@ function Landing({
       <div className="hero-copy">
         <div className="eyebrow">
           <Sparkles size={16} />
-          Group dinner decisions, minus the chaos
+          A calmer way to pick a table
         </div>
-        <h1>Stop arguing about dinner.</h1>
+        <h1>Dinner plans, made easy.</h1>
         <p>
-          BiteMatch helps friends privately like or pass restaurants, then
-          reveals the place everyone actually wants.
+          BiteMatch lets everyone quietly vote on restaurants, then shows the
+          place your group can actually agree on.
         </p>
         <div className="hero-actions">
           <button className="primary-button large" onClick={onCreate}>
@@ -269,7 +270,7 @@ function Landing({
           <PartyPopper size={20} />
           <div>
             <strong>It&apos;s a BiteMatch</strong>
-            <span>Mida has 4 yeses</span>
+            <span>Mida is the one</span>
           </div>
         </div>
         <div className="floating-card vote-card">
@@ -280,7 +281,7 @@ function Landing({
           </span>
           <div>
             <strong>Everyone votes privately</strong>
-            <span>No more group-chat veto spiral</span>
+            <span>Simple yeses, no pressure</span>
           </div>
         </div>
       </div>
@@ -511,7 +512,7 @@ function Room({
             <div className="stage-heading">
               <div>
                 <div className="section-kicker">Private voting</div>
-                <h2>Like it or pass. Friends only see the match.</h2>
+                <h2>Vote quietly. Match when it clicks.</h2>
               </div>
               <span>
                 {completedVotes}/{restaurants.length} reviewed
@@ -618,6 +619,35 @@ function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
             <span key={tag}>{tag}</span>
           ))}
         </div>
+        <div className="menu-preview" aria-label={`${restaurant.name} menu photos`}>
+          {restaurant.menuImages.map((photo) => (
+            <div className="menu-photo" key={photo.src}>
+              <Image src={photo.src} alt={photo.alt} fill sizes="130px" />
+            </div>
+          ))}
+        </div>
+        <a
+          className="map-preview"
+          href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
+            restaurant.mapQuery
+          )}`}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={`Open Google Maps directions to ${restaurant.name}`}
+        >
+          <div className="mini-map" aria-hidden="true">
+            <span className="map-road diagonal" />
+            <span className="map-road horizontal" />
+            <span className="map-pin">
+              <MapPin size={18} />
+            </span>
+          </div>
+          <div className="map-copy">
+            <span>Open in Google Maps</span>
+            <strong>{restaurant.address}</strong>
+          </div>
+          <ExternalLink size={18} />
+        </a>
       </div>
     </article>
   );
@@ -652,7 +682,7 @@ function MatchResult({
         <h2>It&apos;s a BiteMatch.</h2>
         <p>
           Everyone privately liked <strong>{restaurant.name}</strong>. Time to
-          stop debating and start ordering.
+          send directions and start ordering.
         </p>
         <div className="match-avatars">
           {participants.map((participant) => (
@@ -666,11 +696,23 @@ function MatchResult({
           <span>
             {restaurant.cuisine} · {restaurant.price} · {restaurant.distance} mi
           </span>
+          <span>{restaurant.address}</span>
           <small>
             {participants.filter((participant) => votes[participant.id]?.[restaurant.id] === "like").length}
             /{participants.length} yes votes
           </small>
         </div>
+        <a
+          className="primary-button"
+          href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
+            restaurant.mapQuery
+          )}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          Get directions
+          <ExternalLink size={18} />
+        </a>
         <button className="secondary-button" onClick={onReset}>
           Restart demo
         </button>
