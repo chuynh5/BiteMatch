@@ -18,7 +18,7 @@ import {
   Users,
   X
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { cuisineOptions, priceOptions, restaurants } from "@/data/restaurants";
 import { filterRestaurants, getMatch, getVoteStats } from "@/lib/matching";
 import type {
@@ -77,8 +77,9 @@ export default function Home() {
   const [locationStatus, setLocationStatus] = useState<
     "idle" | "locating" | "live" | "fallback" | "error"
   >("idle");
+  const [isPlacesConfigured, setIsPlacesConfigured] = useState(false);
   const [locationMessage, setLocationMessage] = useState(
-    "Using curated demo restaurants until location is enabled."
+    "Add a Google Places API key to enable live nearby restaurant results."
   );
 
   const participants = useMemo(
@@ -119,6 +120,41 @@ export default function Home() {
     (restaurant) => userVotes[restaurant.id]
   ).length;
 
+  useEffect(() => {
+    let shouldUpdate = true;
+
+    async function checkLiveConfig() {
+      try {
+        const response = await fetch("/api/config");
+        const data = (await response.json()) as {
+          googlePlacesConfigured?: boolean;
+        };
+
+        if (!shouldUpdate) {
+          return;
+        }
+
+        setIsPlacesConfigured(Boolean(data.googlePlacesConfigured));
+        setLocationMessage(
+          data.googlePlacesConfigured
+            ? "Live restaurant search is ready. Use your location to find nearby options."
+            : "Add a Google Places API key to enable live nearby restaurant results."
+        );
+      } catch {
+        if (shouldUpdate) {
+          setIsPlacesConfigured(false);
+          setLocationMessage("Live restaurant setup could not be checked. Curated demo restaurants are showing.");
+        }
+      }
+    }
+
+    checkLiveConfig();
+
+    return () => {
+      shouldUpdate = false;
+    };
+  }, []);
+
   function toggleCuisine(cuisine: Cuisine) {
     setPreferences((current) => ({
       ...current,
@@ -156,6 +192,12 @@ export default function Home() {
   }
 
   async function loadNearbyRestaurants() {
+    if (!isPlacesConfigured) {
+      setLocationStatus("error");
+      setLocationMessage("Live search needs GOOGLE_PLACES_API_KEY in .env.local before it can use nearby restaurants.");
+      return;
+    }
+
     if (!("geolocation" in navigator)) {
       setLocationStatus("error");
       setLocationMessage("Location is not available in this browser, so the demo dataset is showing.");
@@ -248,6 +290,7 @@ export default function Home() {
             onUseLocation={loadNearbyRestaurants}
             locationStatus={locationStatus}
             locationMessage={locationMessage}
+            isPlacesConfigured={isPlacesConfigured}
             onEnterRoom={() => {
               setActiveIndex(0);
               setStep("room");
@@ -384,6 +427,7 @@ function Setup({
   onUseLocation,
   locationStatus,
   locationMessage,
+  isPlacesConfigured,
   onEnterRoom
 }: {
   name: string;
@@ -397,6 +441,7 @@ function Setup({
   onUseLocation: () => void;
   locationStatus: "idle" | "locating" | "live" | "fallback" | "error";
   locationMessage: string;
+  isPlacesConfigured: boolean;
   onEnterRoom: () => void;
 }) {
   return (
@@ -509,10 +554,14 @@ function Setup({
           <button
             className="secondary-button"
             onClick={onUseLocation}
-            disabled={locationStatus === "locating"}
+            disabled={locationStatus === "locating" || !isPlacesConfigured}
           >
             <MapPin size={17} />
-            {locationStatus === "locating" ? "Finding..." : "Use my location"}
+            {locationStatus === "locating"
+              ? "Finding..."
+              : isPlacesConfigured
+                ? "Use my location"
+                : "API key needed"}
           </button>
         </div>
 
