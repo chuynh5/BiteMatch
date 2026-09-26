@@ -41,9 +41,9 @@ export type Restaurant = {
   mapQuery: string;
   tags: string[];
   vibe: string;
-  source?: "curated" | "google";
+  source?: "curated" | "google" | "osm";
 };
 
 export type VoteMap = Record<string, Record<string, Vote>>;
 
-export type RestaurantSource = "curated" | "google";
+export type RestaurantSource = "curated" | "google" | "osm";

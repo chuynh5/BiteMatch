@@ -20,10 +20,16 @@ Open `http://localhost:3000`.
 
 ## Live Restaurant Data
 
-BiteMatch can use real nearby restaurants through Google Places API.
+BiteMatch can use real nearby restaurant listings without a paid API key.
+
+- By default, **Use my location** fetches live nearby restaurants from OpenStreetMap.
+- OpenStreetMap provides real names, locations, cuisine tags when available, and address data when mapped.
+- It does not provide official restaurant photos, ratings, or price levels, so the UI uses safe fallback imagery and inferred metadata.
+
+Google Places API is optional if you want richer official data later:
 
 1. Copy `.env.example` to `.env.local`.
-2. Add a Google Places API key:
+2. Add a Google Places API key.
 
 ```bash
 GOOGLE_PLACES_API_KEY=your_key_here
@@ -32,7 +38,7 @@ GOOGLE_PLACES_API_KEY=your_key_here
 3. Restart the dev server.
 4. In the app, choose **Use my location** in room setup.
 
-When the key or browser location is unavailable, the app falls back to the curated demo restaurant dataset so the portfolio demo still works.
+When browser location or live lookup is unavailable, the app falls back to the curated demo restaurant dataset so the portfolio demo still works.
 
 ## Product Scope
 

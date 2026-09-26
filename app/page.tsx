@@ -79,7 +79,7 @@ export default function Home() {
   >("idle");
   const [isPlacesConfigured, setIsPlacesConfigured] = useState(false);
   const [locationMessage, setLocationMessage] = useState(
-    "Add a Google Places API key to enable live nearby restaurant results."
+    "Use your location for live nearby listings. Add Google Places later for official photos and ratings."
   );
 
   const participants = useMemo(
@@ -138,12 +138,12 @@ export default function Home() {
         setLocationMessage(
           data.googlePlacesConfigured
             ? "Live restaurant search is ready. Use your location to find nearby options."
-            : "Add a Google Places API key to enable live nearby restaurant results."
+            : "Live nearby listings are available through OpenStreetMap. Google Places can be added later for richer photos and ratings."
         );
       } catch {
         if (shouldUpdate) {
           setIsPlacesConfigured(false);
-          setLocationMessage("Live restaurant setup could not be checked. Curated demo restaurants are showing.");
+          setLocationMessage("Use your location for live nearby listings. Curated demo restaurants show until then.");
         }
       }
     }
@@ -192,12 +192,6 @@ export default function Home() {
   }
 
   async function loadNearbyRestaurants() {
-    if (!isPlacesConfigured) {
-      setLocationStatus("error");
-      setLocationMessage("Live search needs GOOGLE_PLACES_API_KEY in .env.local before it can use nearby restaurants.");
-      return;
-    }
-
     if (!("geolocation" in navigator)) {
       setLocationStatus("error");
       setLocationMessage("Location is not available in this browser, so the demo dataset is showing.");
@@ -228,10 +222,12 @@ export default function Home() {
           setRestaurantSource(data.source);
           setVotes({});
           setActiveIndex(0);
-          setLocationStatus(data.source === "google" ? "live" : "fallback");
+          setLocationStatus(data.source === "curated" ? "fallback" : "live");
           setLocationMessage(
             data.source === "google"
               ? "Showing live nearby restaurants from Google Places."
+              : data.source === "osm"
+                ? data.message ?? "Showing live nearby restaurant listings from OpenStreetMap."
               : data.message ?? "Using curated demo restaurants."
           );
         } catch {
@@ -554,14 +550,14 @@ function Setup({
           <button
             className="secondary-button"
             onClick={onUseLocation}
-            disabled={locationStatus === "locating" || !isPlacesConfigured}
+            disabled={locationStatus === "locating"}
           >
             <MapPin size={17} />
             {locationStatus === "locating"
               ? "Finding..."
               : isPlacesConfigured
                 ? "Use my location"
-                : "API key needed"}
+                : "Use location via OSM"}
           </button>
         </div>
 
@@ -649,8 +645,12 @@ function Room({
             {preferences.cuisines.slice(0, 3).join(", ") || "Any cuisine"} ·{" "}
             {preferences.prices.join("/")} · {preferences.maxDistance} mi
           </p>
-          <div className={restaurantSource === "google" ? "source-pill live" : "source-pill"}>
-            {restaurantSource === "google" ? "Live nearby restaurants" : "Curated demo data"}
+          <div className={restaurantSource !== "curated" ? "source-pill live" : "source-pill"}>
+            {restaurantSource === "google"
+              ? "Live Google Places"
+              : restaurantSource === "osm"
+                ? "Live OpenStreetMap"
+                : "Curated demo data"}
           </div>
           <button className="secondary-button" onClick={onEditPreferences}>
             Edit preferences
@@ -773,7 +773,7 @@ function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
             {restaurant.neighborhood}
           </span>
           <span>{restaurant.distance} mi</span>
-          <span>{restaurant.rating} rating</span>
+          <span>{restaurant.rating > 0 ? `${restaurant.rating} rating` : "Live listing"}</span>
         </div>
         <div className="tag-row">
           {restaurant.tags.map((tag) => (

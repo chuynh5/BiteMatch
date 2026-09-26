@@ -23,6 +23,18 @@ type GooglePlace = {
   };
 };
 
+type OsmElement = {
+  id: number;
+  lat?: number;
+  lon?: number;
+  center?: {
+    lat?: number;
+    lon?: number;
+  };
+  tags?: Record<string, string>;
+  type: "node" | "way" | "relation";
+};
+
 const cuisineTypeMap: Record<Cuisine, string[]> = {
   Italian: ["italian_restaurant"],
   Japanese: ["japanese_restaurant", "sushi_restaurant"],
@@ -49,7 +61,7 @@ const typeCuisineMap: Record<string, Cuisine> = {
 
 export type NearbyRestaurantResult = {
   restaurants: Restaurant[];
-  source: "google" | "curated";
+  source: "google" | "osm" | "curated";
   message?: string;
 };
 
@@ -70,10 +82,18 @@ export async function fetchNearbyRestaurants({
 }): Promise<NearbyRestaurantResult> {
   const apiKey = process.env.GOOGLE_PLACES_API_KEY;
 
-  if (!apiKey || lat == null || lng == null) {
-    return curatedFallback(
-      "Using curated demo restaurants. Add GOOGLE_PLACES_API_KEY and allow location for live nearby results."
-    );
+  if (lat == null || lng == null) {
+    return curatedFallback("Allow location to find live nearby restaurants.");
+  }
+
+  if (!apiKey) {
+    return fetchOpenStreetMapRestaurants({
+      lat,
+      lng,
+      radius,
+      cuisines,
+      prices
+    });
   }
 
   const includedPrimaryTypes =
@@ -134,6 +154,88 @@ export async function fetchNearbyRestaurants({
     };
   } catch {
     return curatedFallback("Live restaurant lookup is unavailable, so this room is using curated demo data.");
+  }
+}
+
+async function fetchOpenStreetMapRestaurants({
+  lat,
+  lng,
+  radius,
+  cuisines,
+  prices
+}: {
+  lat: number;
+  lng: number;
+  radius: number;
+  cuisines: Cuisine[];
+  prices: PriceLevel[];
+}): Promise<NearbyRestaurantResult> {
+  const boundedRadius = Math.min(Math.max(radius, 500), 10000);
+  const query = `
+    [out:json][timeout:14];
+    (
+      node["name"]["amenity"~"restaurant|cafe|fast_food"](around:${boundedRadius},${lat},${lng});
+      way["name"]["amenity"~"restaurant|cafe|fast_food"](around:${boundedRadius},${lat},${lng});
+      relation["name"]["amenity"~"restaurant|cafe|fast_food"](around:${boundedRadius},${lat},${lng});
+    );
+    out center tags 35;
+  `;
+
+  try {
+    const response = await fetch("https://overpass-api.de/api/interpreter", {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+        "User-Agent": "BiteMatchPortfolio/1.0"
+      },
+      body: new URLSearchParams({ data: query })
+    });
+
+    if (!response.ok) {
+      return curatedFallback("Live OpenStreetMap lookup failed, so this room is using curated demo data.");
+    }
+
+    const data = (await response.json()) as { elements?: OsmElement[] };
+    const seenNames = new Set<string>();
+    const mappedRestaurants: Restaurant[] = [];
+
+    for (const element of data.elements ?? []) {
+      const restaurant = mapOsmElement(element, { lat, lng });
+
+      if (!restaurant) {
+        continue;
+      }
+
+      const restaurantKey = restaurant.name.toLowerCase();
+
+      if (
+        seenNames.has(restaurantKey) ||
+        !prices.includes(restaurant.price) ||
+        (cuisines.length > 0 && !cuisines.includes(restaurant.cuisine))
+      ) {
+        continue;
+      }
+
+      seenNames.add(restaurantKey);
+      mappedRestaurants.push(restaurant);
+    }
+
+    const sortedRestaurants = mappedRestaurants
+      .sort((a, b) => a.distance - b.distance)
+      .slice(0, 20);
+
+    if (sortedRestaurants.length === 0) {
+      return curatedFallback("No nearby OpenStreetMap restaurants matched those filters, so this room is using curated demo data.");
+    }
+
+    return {
+      restaurants: sortedRestaurants,
+      source: "osm",
+      message: "Showing live nearby restaurant listings from OpenStreetMap. Add Google Places later for official photos and ratings."
+    };
+  } catch {
+    return curatedFallback("Live OpenStreetMap lookup is unavailable, so this room is using curated demo data.");
   }
 }
 
@@ -198,6 +300,97 @@ function inferCuisine(place: GooglePlace): Cuisine {
   const matchedType = allTypes.find((type) => typeCuisineMap[type]);
 
   return matchedType ? typeCuisineMap[matchedType] : "American";
+}
+
+function mapOsmElement(
+  element: OsmElement,
+  {
+    lat,
+    lng
+  }: {
+    lat: number;
+    lng: number;
+  }
+): Restaurant | null {
+  const tags = element.tags ?? {};
+  const name = tags.name;
+  const placeLat = element.lat ?? element.center?.lat;
+  const placeLng = element.lon ?? element.center?.lon;
+
+  if (!name || placeLat == null || placeLng == null) {
+    return null;
+  }
+
+  const cuisine = inferOsmCuisine(tags.cuisine, tags.amenity);
+  const fallback = curatedRestaurants.find((restaurant) => restaurant.cuisine === cuisine) ?? curatedRestaurants[0];
+  const distance = milesBetween(lat, lng, placeLat, placeLng);
+  const address = formatOsmAddress(tags);
+  const neighborhood = tags["addr:city"] ?? tags["addr:suburb"] ?? "Nearby";
+  const price = inferOsmPrice(tags);
+
+  return {
+    id: `osm-${element.type}-${element.id}`,
+    name,
+    cuisine,
+    price,
+    neighborhood,
+    address,
+    rating: 0,
+    distance,
+    image: fallback.image,
+    menuImages: fallback.menuImages,
+    mapQuery: `${name} ${address}`,
+    tags: [
+      tags.amenity === "cafe" ? "Cafe" : "Restaurant",
+      `${distance.toFixed(1)} mi away`,
+      tags.cuisine ? titleCase(tags.cuisine.replace(/_/g, " ")) : "Live listing"
+    ],
+    vibe: `${name} is a real nearby listing from OpenStreetMap matched to this room's filters.`,
+    source: "osm"
+  };
+}
+
+function inferOsmCuisine(cuisineTag?: string, amenity?: string): Cuisine {
+  const cuisine = cuisineTag?.toLowerCase() ?? "";
+
+  if (cuisine.includes("italian") || cuisine.includes("pizza")) return "Italian";
+  if (cuisine.includes("japanese") || cuisine.includes("sushi") || cuisine.includes("ramen")) return "Japanese";
+  if (cuisine.includes("mexican") || cuisine.includes("taco")) return "Mexican";
+  if (cuisine.includes("thai")) return "Thai";
+  if (cuisine.includes("mediterranean") || cuisine.includes("greek") || cuisine.includes("middle_eastern")) return "Mediterranean";
+  if (cuisine.includes("korean")) return "Korean";
+  if (cuisine.includes("indian")) return "Indian";
+  if (amenity === "cafe") return "American";
+
+  return "American";
+}
+
+function inferOsmPrice(tags: Record<string, string>): PriceLevel {
+  const cuisine = tags.cuisine?.toLowerCase() ?? "";
+  const amenity = tags.amenity;
+
+  if (amenity === "fast_food" || amenity === "cafe") {
+    return "$";
+  }
+
+  if (cuisine.includes("fine_dining") || cuisine.includes("steak_house")) {
+    return "$$$";
+  }
+
+  return "$$";
+}
+
+function formatOsmAddress(tags: Record<string, string>) {
+  const street = [tags["addr:housenumber"], tags["addr:street"]].filter(Boolean).join(" ");
+  const city = tags["addr:city"] ?? tags["addr:suburb"];
+  const state = tags["addr:state"];
+  const address = [street, city, state].filter(Boolean).join(", ");
+
+  return address || "Address available in map data";
+}
+
+function titleCase(value: string) {
+  return value.replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function inferNeighborhood(address: string) {
