@@ -1,4 +1,5 @@
 import { restaurants as curatedRestaurants } from "@/data/restaurants";
+import { tryUseQuota } from "@/lib/usageCap";
 import type { Cuisine, PriceLevel, Restaurant } from "@/types/bitematch";
 
 type GooglePlace = {
@@ -89,7 +90,8 @@ export async function fetchNearbyRestaurants({
     return curatedFallback("Allow location to find live nearby restaurants.");
   }
 
-  if (!apiKey) {
+  // No key, or today's free Google searches are used up: use OpenStreetMap instead.
+  if (!apiKey || !(await tryUseQuota("google_nearby"))) {
     return fetchOpenStreetMapRestaurants({
       lat,
       lng,

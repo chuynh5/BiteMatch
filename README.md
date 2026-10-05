@@ -63,6 +63,17 @@ How it works:
 - There are no accounts. The 4-digit room code is the key, which is fine among friends but not private.
 - Without the two variables, the app falls back to **testing mode**: rooms are saved in your browser only, so you can try it with two tabs.
 
+## Keeping Google at $0
+
+Google Places is billed per request, with a free monthly allowance. BiteMatch caps its own usage per day so it never goes past that:
+
+- **Photos:** 30 new photo loads a day (Google gives 1,000 free a month). Each photo is cached for a day, so friends in the same room share one load.
+- **Nearby searches:** 100 a day (5,000 free a month). After that, rooms use OpenStreetMap for the rest of the day.
+
+The counter lives in Supabase. Run `supabase/usage-cap.sql` once in the SQL Editor to set it up. Without it, the app makes no Google requests at all and shows illustrations instead.
+
+To see today's usage, run `select * from api_usage order by day desc, kind;` in the SQL Editor. The limits are in `lib/usageCap.ts`.
+
 ## Product Scope
 
 V1 intentionally avoids required accounts. Room, participant, and vote state are simulated in the browser for a smooth portfolio demo, while the data and matching code are separated so Supabase/realtime rooms can be added later.
