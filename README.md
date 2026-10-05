@@ -1,100 +1,141 @@
 # BiteMatch
 
-BiteMatch is a polished MVP for a group restaurant decision app. Friends create or join a room, set preferences, privately like or pass restaurant options, and reveal a group match when enough people agree.
+**Swipe on restaurants with friends. The match shows up when everyone agrees.**
 
-## Tech Stack
+**Live app: [bite-match-one.vercel.app](https://bite-match-one.vercel.app)**
 
-- Next.js App Router
-- React + TypeScript
-- CSS modules via `app/globals.css`
-- Curated local restaurant data designed to be replaced by a restaurant API later
+![BiteMatch: Dinner plans, made easy.](docs/preview.png)
 
-## Run Locally
+Picking dinner in a group chat goes in circles: nobody wants to be the one who picks, and the loudest opinion wins. BiteMatch gives everyone a private vote instead. One person makes a room, friends join with a 4-digit code, and everyone swipes through the same short list of real nearby restaurants. When a place gets a yes from everyone, it's a match.
+
+<p align="center">
+  <img src="docs/demo.gif" alt="A phone swiping through restaurant cards and landing on a match" width="280" />
+</p>
+
+## How it works
+
+1. **Create a room.** Pick cuisines, a price range and how far you'll go, and share your location for real nearby places.
+2. **Invite friends.** Share the link or the 4-digit code. Friends join with just their name, with no accounts.
+3. **Vote privately.** Everyone swipes through the same 10 restaurants, flipping through real photos of each one. Other people's votes stay hidden until you've voted on that place, so nobody gets swayed.
+4. **Get the match.** As soon as everyone likes the same place, every phone shows it, with confetti. If nobody agrees on everything, the closest call wins once everyone's done, and ties are broken fairly.
+5. **Go eat.** Get directions, or share the result back to the group chat.
+
+## Features
+
+- **Live rooms across phones.** Joins and votes sync in real time through Supabase. Refreshing keeps your spot.
+- **Real restaurants, real photos.** Nearby places come from Google Places, with up to 5 photos per restaurant you can tap through like stories. OpenStreetMap is the free fallback.
+- **Fair picks.** The 10 cards take turns across your chosen cuisines, and places rated 4.0+ with plenty of reviews go first.
+- **Fair tie-breaks.** If two places tie, the higher rating wins, then more reviews, then the closer one. Every phone shows the same winner and a line explaining why.
+- **Swipe, tap or use keys.** Drag the card to vote, tap the photo to flip it, or use the ← → keys on a computer.
+- **Fits any screen.** Tested from a 320px iPhone SE up to a desktop monitor.
+- **Shareable.** Invite links and results share through the phone's share sheet, with a branded preview card in iMessage, Slack and LinkedIn.
+- **Try it alone.** The demo room has simulated friends, so anyone can see the full flow in under a minute.
+
+## Built with
+
+- **Next.js 16** (App Router), **React 19**, **TypeScript**
+- **Supabase** (Postgres + Realtime) for rooms, participants and votes
+- **Google Places API (New)** for nearby search, ratings, prices and photos
+- **OpenStreetMap** (Overpass API) as a free fallback for nearby places
+- **Vercel** for hosting
+- **Vitest** for tests
+- Hand-drawn dish illustrations for the homepage, Fraunces and Nunito type
+
+## Design decisions
+
+- **$0 to run.** Google bills per request, so BiteMatch counts its own usage in the database and stops just under Google's free monthly allowance. Photos are cached for a day, so a whole room shares one load per photo. If the counter can't be checked, it skips Google rather than risk a charge. See [Keeping Google at $0](#keeping-google-at-0).
+- **Private by default.** Results for a restaurant unlock only after you vote on it, so early votes can't sway anyone.
+- **Small rooms.** Rooms cap at 10 restaurants. Fewer cards means more overlap between friends, so matches come faster.
+- **No accounts.** Joining needs only a name and a code. The trade-off is that the code is the only key to a room, which is fine among friends.
+- **Graceful fallbacks.** No location or no Google results falls back to OpenStreetMap or the demo list. Photos fall back to a cuisine illustration only when none can be found.
+
+## Run it locally
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Open http://localhost:3000. With no configuration, the app runs in **testing mode**: rooms are saved in your browser only, so two tabs can act as two people, and restaurants come from OpenStreetMap or the demo list.
 
-## Live Restaurant Data
+### Configuration
 
-BiteMatch can use real nearby restaurant listings without a paid API key.
+Copy `.env.example` to `.env.local` and fill in what you need:
 
-- By default, **Use my location** fetches live nearby restaurants from OpenStreetMap.
-- OpenStreetMap provides real names, locations, cuisine tags when available, and address data when mapped.
-- It does not provide official restaurant photos, ratings, or price levels, so the UI uses safe fallback imagery and inferred metadata.
+| Variable | What it's for |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Real rooms across phones. Supabase → Connect (or Settings → API Keys). |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | The publishable (or legacy anon) key from the same place. |
+| `GOOGLE_PLACES_API_KEY` | Real nearby restaurants, ratings and photos. Restrict the key to Places API (New). Keep it secret: it is only used on the server. |
 
-Google Places API is optional. With a key, rooms created with **Use my location** show each restaurant's own photos (up to 5, tap to flip) with photographer credits:
+On Vercel, add the same variables under **Settings → Environment Variables**, then redeploy.
 
-1. Copy `.env.example` to `.env.local`.
-2. Add a Google Places API key.
+### Database setup
 
-```bash
-GOOGLE_PLACES_API_KEY=your_key_here
-```
+In Supabase, open **SQL Editor → New query** and run both files once. Both are safe to re-run.
 
-3. Restart the dev server.
-4. In the app, choose **Use my location** in room setup.
-
-When browser location or live lookup is unavailable, the app falls back to the curated demo restaurant dataset so the portfolio demo still works.
-
-## Real Rooms With Friends
-
-Rooms are stored in [Supabase](https://supabase.com) (free tier is plenty), so friends on different phones join the same room and see votes live.
-
-1. Create a free Supabase project.
-2. In the project, open **SQL Editor > New query**, paste all of `supabase/schema.sql`, and click **Run**.
-3. Open **Project Settings > API** and copy the **Project URL** and the **anon public** key.
-4. Put them in `.env.local` (and in your host's environment variables when you deploy):
-
-```bash
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-```
-
-5. Restart the dev server. Create a group, share the link (`/room?code=1234`), and friends join with their name.
-
-How it works:
-
-- The host's filters and restaurant list are saved with the room, so everyone swipes the same cards.
-- A match appears as soon as every person in the room has liked the same place. If nobody agrees on everything, the closest call shows once everyone is done.
-- There are no accounts. The 4-digit room code is the key, which is fine among friends but not private.
-- Without the two variables, the app falls back to **testing mode**: rooms are saved in your browser only, so you can try it with two tabs.
-
-## Picking the 10 Restaurants
-
-Rooms hold up to 10 places (`lib/pickRestaurants.ts`):
-
-- Places rated 4.0+ go first, best-reviewed first. A 4.7 with 1,200 reviews beats a 5.0 with 3.
-- Selected cuisines take turns, so one cuisine can't crowd out the others. If a cuisine runs short, the rest fill in.
-- Lower-rated places only fill leftover spots.
+1. `supabase/schema.sql` creates rooms, participants and votes, with live updates turned on.
+2. `supabase/usage-cap.sql` creates the usage counter that keeps Google free.
 
 ## Keeping Google at $0
 
-Google Places is billed per request, with a free monthly allowance. BiteMatch caps its own usage per month so it never goes past that:
+Google Places has a free monthly allowance per request type. BiteMatch stays under each one:
 
-- **Photos:** 950 new photo loads a month (Google gives 1,000 free). Each photo is cached for a day, so friends in the same room share one load.
-- **Nearby searches:** 950 a month (1,000 free, since the search asks for ratings and price levels). Google also limits this to 100 a day. After that, rooms use OpenStreetMap.
+| Request | Used for | Google's free allowance | BiteMatch's monthly cap |
+|---|---|---|---|
+| Nearby Search (with ratings) | Finding restaurants for a room | 1,000 | 950 |
+| Text Search | Finding photos for demo and OpenStreetMap restaurants | 5,000 | 4,500 |
+| Place Photo | Each new photo shown | 1,000 | 950 |
 
-The counter lives in Supabase. Run `supabase/usage-cap.sql` in the SQL Editor to set it up (safe to re-run). Without it, the app makes no Google requests at all and shows illustrations instead.
+Google also limits nearby searches to 100 a day. Once a cap is reached, rooms use OpenStreetMap and cards show illustrations until the month resets. To check usage, run this in the Supabase SQL Editor:
 
-To see usage, run `select * from api_usage order by day desc, kind;` in the SQL Editor. Monthly rows end in `_month`. The limits are in `lib/usageCap.ts`.
+```sql
+select * from api_usage order by day desc, kind;
+```
 
-## Product Scope
+The limits live in `lib/usageCap.ts`.
 
-V1 intentionally avoids required accounts. Room, participant, and vote state are simulated in the browser for a smooth portfolio demo, while the data and matching code are separated so Supabase/realtime rooms can be added later.
+## Picking the 10 restaurants
 
-## Illustrations
+`lib/pickRestaurants.ts` chooses each room's list:
 
-Restaurant cards use hand-drawn dish illustrations from `public/illustrations/`, one transparent PNG per cuisine. To add art for a cuisine (Mexican, Thai, American and Indian are still missing), drop a square transparent PNG in that folder and list it in `components/DishArt.tsx`. Cuisines without art show a cute placeholder.
+- Places rated **4.0+** go first. Review count matters, so a 4.7 with 1,200 reviews beats a 5.0 with 3.
+- Selected cuisines **take turns**, so one cuisine can't crowd out the others. If one runs short, the rest fill in.
+- Lower-rated places only fill leftover spots.
 
-## Project Structure
+## Tests
 
-- `app/page.tsx` holds the app state and switches between screens.
-- `components/` has the screens (`Landing`, `Setup`, `Room`, `MatchResult`) and pieces (`SwipeDeck`, `DishArt`, `ShareButton`).
-- `lib/matching.ts` has the match logic, and `lib/demoVotes.ts` simulates the demo friends' votes.
-- `lib/rooms/` saves real rooms: `supabaseStore.ts` for the shared database, `deviceStore.ts` for testing mode.
-- `app/room/page.tsx` and `components/LiveRoom.tsx` are the room friends join from an invite link.
-- `supabase/schema.sql` creates the database tables.
+```bash
+npm test
+```
+
+32 tests cover matching and tie-breaks, restaurant picking, the demo room's simulated votes, Google data mapping, invite links, the usage cap, and testing-mode rooms.
+
+## Project structure
+
+```
+app/
+  page.tsx                 Home, room setup and the demo room
+  room/page.tsx            Real rooms (invite links: /room?code=1234)
+  api/restaurants          Nearby search (Google, then OpenStreetMap)
+  api/place-lookup         Finds photos for a restaurant by name and address
+  api/place-photo          Serves one Google photo (cached, capped)
+  opengraph-image.tsx      Link preview card
+components/
+  Landing, Setup, Room, LiveRoom, MatchResult
+  SwipeDeck                Swipeable card, tap-to-flip photos
+  RestaurantPhotos         Real photos, with loading and fallback states
+  PhotoCarousel, DishArt, ShareButton
+lib/
+  matching.ts              Matches, top pick and tie-breaks
+  pickRestaurants.ts       Choosing the 10 cards
+  googlePlaces.ts          Google + OpenStreetMap search
+  usageCap.ts              Monthly caps on Google requests
+  rooms/                   Room storage: Supabase, or this browser in testing mode
+supabase/                  SQL to set up the database
+tests/                     Vitest tests
+```
+
+## Credits
+
+Dish illustrations by Cara Huynh. Restaurant photos come from Google Maps contributors and are credited on each photo.
