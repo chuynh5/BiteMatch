@@ -4,7 +4,7 @@ import { pickForRoom } from "@/lib/pickRestaurants";
 import { tryUseQuota } from "@/lib/usageCap";
 import type { Cuisine, PriceLevel, Restaurant } from "@/types/bitematch";
 
-type GooglePlace = {
+export type GooglePlace = {
   id?: string;
   displayName?: {
     text?: string;
@@ -263,6 +263,20 @@ async function fetchOpenStreetMapRestaurants({
 /** Up to this many photos per restaurant. Each one shown costs a Google photo request. */
 const MAX_PHOTOS = 5;
 
+/** Turns Google's photo list into card photos that load through our cached, capped photo route. */
+export function photosFromPlace(place: Pick<GooglePlace, "photos">, name: string): Restaurant["menuImages"] {
+  return (place.photos ?? [])
+    .filter((photo) => photo.name?.startsWith("places/"))
+    .slice(0, MAX_PHOTOS)
+    .map((photo, index) => ({
+      // Relative link: works on any domain the app is deployed to.
+      src: `/api/place-photo?name=${encodeURIComponent(photo.name as string)}`,
+      alt: `${name} photo ${index + 1}`,
+      credit: photo.authorAttributions?.[0]?.displayName,
+      creditUrl: photo.authorAttributions?.[0]?.uri
+    }));
+}
+
 export function mapGooglePlace(
   place: GooglePlace,
   {
@@ -283,16 +297,7 @@ export function mapGooglePlace(
 
   const cuisine = inferCuisine(place);
   const price = mapPriceLevel(place.priceLevel) ?? estimatePrice(place);
-  const photos = (place.photos ?? [])
-    .filter((photo) => photo.name?.startsWith("places/"))
-    .slice(0, MAX_PHOTOS)
-    .map((photo, index) => ({
-      // Relative link: works on any domain the app is deployed to.
-      src: `/api/place-photo?name=${encodeURIComponent(photo.name as string)}`,
-      alt: `${name} photo ${index + 1}`,
-      credit: photo.authorAttributions?.[0]?.displayName,
-      creditUrl: photo.authorAttributions?.[0]?.uri
-    }));
+  const photos = photosFromPlace(place, name);
   const distance = milesBetween(lat, lng, placeLat, placeLng);
   const address = place.formattedAddress ?? "Address available in Google Maps";
 

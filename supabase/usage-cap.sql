@@ -25,7 +25,7 @@ declare
   today date := (now() at time zone 'America/Los_Angeles')::date;
   used integer;
 begin
-  if quota_kind not in ('google_photo', 'google_nearby') or daily_limit < 0 or daily_limit > 1000 then
+  if quota_kind not in ('google_photo', 'google_nearby', 'google_text') or daily_limit < 0 or daily_limit > 1000 then
     return false;
   end if;
 
@@ -60,7 +60,7 @@ declare
   this_month date := date_trunc('month', now() at time zone 'America/Los_Angeles')::date;
   used integer;
 begin
-  if quota_kind not in ('google_photo', 'google_nearby') or monthly_limit < 0 or monthly_limit > 5000 then
+  if quota_kind not in ('google_photo', 'google_nearby', 'google_text') or monthly_limit < 0 or monthly_limit > 5000 then
     return false;
   end if;
 

@@ -2,8 +2,8 @@
 
 import { ExternalLink, Heart, MapPin, Star, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { DishArt } from "@/components/DishArt";
-import { PHOTO_TAP_EVENT, PhotoCarousel, type PhotoTapDetail } from "@/components/PhotoCarousel";
+import { PHOTO_TAP_EVENT, type PhotoTapDetail } from "@/components/PhotoCarousel";
+import { RestaurantPhotos } from "@/components/RestaurantPhotos";
 import type { Restaurant, Vote } from "@/types/bitematch";
 
 const SWIPE_THRESHOLD = 110;
@@ -129,9 +129,7 @@ export function SwipeDeck({
         </button>
       </div>
       <p className="swipe-tip">
-        {restaurant.source === "google" && restaurant.menuImages.length > 1
-          ? "Tap the photo to see more · drag the card to vote"
-          : "Drag the card, or use ← → keys"}
+        Tap the photo to see more · drag the card to vote
       </p>
     </div>
   );
@@ -146,11 +144,7 @@ function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
   return (
     <article className="restaurant-card">
       <div className="restaurant-art">
-        {restaurant.source === "google" && restaurant.menuImages.length > 0 ? (
-          <PhotoCarousel restaurant={restaurant} sizes="(max-width: 900px) 92vw, 560px" />
-        ) : (
-          <DishArt restaurant={restaurant} sizes="(max-width: 900px) 92vw, 560px" />
-        )}
+        <RestaurantPhotos restaurant={restaurant} sizes="(max-width: 900px) 92vw, 560px" />
         <span className="price-sticker">{restaurant.price}</span>
       </div>
       <div className="restaurant-content">

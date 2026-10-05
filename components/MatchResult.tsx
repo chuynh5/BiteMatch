@@ -1,7 +1,7 @@
 "use client";
 
 import { ExternalLink, PartyPopper, Trophy } from "lucide-react";
-import { DishArt } from "@/components/DishArt";
+import { RestaurantPhotos } from "@/components/RestaurantPhotos";
 import type { Participant, Restaurant, VoteMap } from "@/types/bitematch";
 
 const confettiColors = ["#d97863", "#e7b967", "#6e9b8e", "#7c3aed", "#f2a7b8"];
@@ -52,7 +52,7 @@ export function MatchResult({
     <div className={unanimous ? "match-result is-match" : "match-result"}>
       {unanimous ? <Confetti /> : null}
       <div className="match-photo">
-        <DishArt restaurant={restaurant} sizes="(max-width: 900px) 92vw, 480px" />
+        <RestaurantPhotos restaurant={restaurant} sizes="(max-width: 900px) 92vw, 480px" tapToFlip />
       </div>
       <div className="match-copy">
         <div className="celebration-icon">

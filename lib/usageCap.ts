@@ -13,7 +13,10 @@ export const MONTHLY_LIMITS = {
   google_photo: 950,
   // Google: 1,000 free nearby searches a month at the Enterprise tier (we ask for
   // ratings and price levels). Google also caps this at 100 a day.
-  google_nearby: 950
+  google_nearby: 950,
+  // Google: 5,000 free Text Searches a month (Pro tier). Used to find photos for
+  // restaurants that didn't come from a Google search (demo and OpenStreetMap).
+  google_text: 4500
 } as const;
 
 export type QuotaKind = keyof typeof MONTHLY_LIMITS;
