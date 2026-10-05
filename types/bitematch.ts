@@ -39,6 +39,9 @@ export type Restaurant = {
   menuImages: {
     src: string;
     alt: string;
+    /** Photographer credit, required by Google for Places photos. */
+    credit?: string;
+    creditUrl?: string;
   }[];
   mapQuery: string;
   tags: string[];

@@ -36,8 +36,7 @@ export async function GET(request: NextRequest) {
     lng: Number.isFinite(lng) ? lng : undefined,
     radius: Number.isFinite(radius) ? radius : 4828,
     cuisines: selectedCuisines?.length ? selectedCuisines : cuisines,
-    prices: selectedPrices?.length ? selectedPrices : prices,
-    origin: request.nextUrl.origin
+    prices: selectedPrices?.length ? selectedPrices : prices
   });
 
   return NextResponse.json(result);

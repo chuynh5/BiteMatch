@@ -13,9 +13,11 @@ type GooglePlace = {
   };
   photos?: {
     name?: string;
+    authorAttributions?: {
+      displayName?: string;
+      uri?: string;
+    }[];
   }[];
-  priceLevel?: string;
-  rating?: number;
   types?: string[];
   primaryType?: string;
   primaryTypeDisplayName?: {
@@ -74,14 +76,12 @@ export async function fetchNearbyRestaurants({
   radius,
   cuisines,
   prices,
-  origin
 }: {
   lat?: number;
   lng?: number;
   radius: number;
   cuisines: Cuisine[];
   prices: PriceLevel[];
-  origin: string;
 }): Promise<NearbyRestaurantResult> {
   const apiKey = process.env.GOOGLE_PLACES_API_KEY;
 
@@ -112,8 +112,10 @@ export async function fetchNearbyRestaurants({
         headers: {
           "Content-Type": "application/json",
           "X-Goog-Api-Key": apiKey,
+          // Only "Pro" fields: rating and priceLevel would bump every search to
+          // Google's pricier Enterprise tier (1,000 free a month instead of 5,000).
           "X-Goog-FieldMask":
-            "places.id,places.displayName,places.formattedAddress,places.location,places.photos,places.priceLevel,places.rating,places.types,places.primaryType,places.primaryTypeDisplayName"
+            "places.id,places.displayName,places.formattedAddress,places.location,places.photos,places.types,places.primaryType,places.primaryTypeDisplayName"
         },
         body: JSON.stringify({
           includedPrimaryTypes,
@@ -140,7 +142,7 @@ export async function fetchNearbyRestaurants({
     const mappedRestaurants: Restaurant[] = [];
 
     for (const place of data.places ?? []) {
-      const restaurant = mapGooglePlace(place, { lat, lng, origin });
+      const restaurant = mapGooglePlace(place, { lat, lng });
 
       if (
         restaurant &&
@@ -246,16 +248,17 @@ async function fetchOpenStreetMapRestaurants({
   }
 }
 
-function mapGooglePlace(
+/** Up to this many photos per restaurant. Each one shown costs a Google photo request. */
+const MAX_PHOTOS = 5;
+
+export function mapGooglePlace(
   place: GooglePlace,
   {
     lat,
-    lng,
-    origin
+    lng
   }: {
     lat: number;
     lng: number;
-    origin: string;
   }
 ): Restaurant | null {
   const placeLat = place.location?.latitude;
@@ -267,11 +270,17 @@ function mapGooglePlace(
   }
 
   const cuisine = inferCuisine(place);
-  const price = mapPriceLevel(place.priceLevel);
-  const photo = place.photos?.[0]?.name;
-  const photoUrl = photo
-    ? `${origin}/api/place-photo?name=${encodeURIComponent(photo)}`
-    : curatedRestaurants[0].image;
+  const price = estimatePrice(place);
+  const photos = (place.photos ?? [])
+    .filter((photo) => photo.name?.startsWith("places/"))
+    .slice(0, MAX_PHOTOS)
+    .map((photo, index) => ({
+      // Relative link: works on any domain the app is deployed to.
+      src: `/api/place-photo?name=${encodeURIComponent(photo.name as string)}`,
+      alt: `${name} photo ${index + 1}`,
+      credit: photo.authorAttributions?.[0]?.displayName,
+      creditUrl: photo.authorAttributions?.[0]?.uri
+    }));
   const distance = milesBetween(lat, lng, placeLat, placeLng);
   const address = place.formattedAddress ?? "Address available in Google Maps";
 
@@ -282,20 +291,14 @@ function mapGooglePlace(
     price,
     neighborhood: inferNeighborhood(address),
     address,
-    rating: place.rating ?? 4.4,
+    // Ratings would cost an Enterprise-tier search, so live listings don't show one.
+    rating: 0,
     distance,
-    image: photoUrl,
-    menuImages: [
-      {
-        src: photoUrl,
-        alt: `${name} restaurant photo`
-      }
-    ],
+    image: photos[0]?.src ?? "",
+    menuImages: photos,
     mapQuery: `${name} ${address}`,
     tags: [
-      place.primaryTypeDisplayName?.text ?? cuisine,
-      `${distance.toFixed(1)} mi away`,
-      place.rating ? `${place.rating.toFixed(1)} rating` : "Nearby"
+      place.primaryTypeDisplayName?.text ?? cuisine
     ],
     vibe: `${name} is a nearby ${cuisine.toLowerCase()} option matched to this room's filters.`,
     source: "google" as const
@@ -408,15 +411,11 @@ function inferNeighborhood(address: string) {
   return parts.length >= 2 ? parts[parts.length - 3] ?? parts[0] : parts[0] ?? "Nearby";
 }
 
-function mapPriceLevel(priceLevel?: string): PriceLevel {
-  if (priceLevel === "PRICE_LEVEL_EXPENSIVE" || priceLevel === "PRICE_LEVEL_VERY_EXPENSIVE") {
-    return "$$$";
-  }
-
-  if (priceLevel === "PRICE_LEVEL_INEXPENSIVE") {
-    return "$";
-  }
-
+/** A rough price from the place type, since Google's priceLevel field costs extra. */
+function estimatePrice(place: GooglePlace): PriceLevel {
+  const types = [place.primaryType, ...(place.types ?? [])];
+  if (types.includes("fine_dining_restaurant") || types.includes("steak_house")) return "$$$";
+  if (types.some((type) => type && /fast_food|cafe|bakery|food_court|sandwich|hamburger|pizza/.test(type))) return "$";
   return "$$";
 }
 
