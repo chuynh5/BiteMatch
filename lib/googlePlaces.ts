@@ -1,4 +1,5 @@
 import { restaurants as curatedRestaurants } from "@/data/restaurants";
+import { MAX_ROOM_RESTAURANTS } from "@/lib/limits";
 import { tryUseQuota } from "@/lib/usageCap";
 import type { Cuisine, PriceLevel, Restaurant } from "@/types/bitematch";
 
@@ -160,7 +161,8 @@ export async function fetchNearbyRestaurants({
     }
 
     return {
-      restaurants: mappedRestaurants,
+      // Google returns up to 20 for the same price; keep the 10 most popular that fit the filters.
+      restaurants: mappedRestaurants.slice(0, MAX_ROOM_RESTAURANTS),
       source: "google"
     };
   } catch {
@@ -234,7 +236,7 @@ async function fetchOpenStreetMapRestaurants({
 
     const sortedRestaurants = mappedRestaurants
       .sort((a, b) => a.distance - b.distance)
-      .slice(0, 20);
+      .slice(0, MAX_ROOM_RESTAURANTS);
 
     if (sortedRestaurants.length === 0) {
       return curatedFallback("No nearby OpenStreetMap restaurants matched those filters, so this room is using curated demo data.");
