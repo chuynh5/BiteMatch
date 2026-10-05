@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844">
+  <rect width="390" height="844" rx="46" fill="#c5ad9a"/>
+  <circle cx="195" cy="252" r="92" fill="#fffaf5" opacity=".18"/>
+  <text x="195" y="230" text-anchor="middle" fill="#fffaf5" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="600">It's a BiteMatch</text>
+  <text x="195" y="304" text-anchor="middle" fill="#fffaf5" font-family="Georgia, serif" font-size="70" font-weight="700">Mida</text>
+  <text x="195" y="346" text-anchor="middle" fill="#fffaf5" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="600">Everyone said yes</text>
+  <rect x="44" y="420" width="302" height="112" rx="30" fill="#fffaf5" opacity=".16" stroke="#fffaf5" stroke-opacity=".24"/>
+  <text x="74" y="470" fill="#fffaf5" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="600">Italian · $$</text>
+  <text x="74" y="506" fill="#fffaf5" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="600">South End · 1.2 mi</text>
+  <rect x="54" y="604" width="282" height="62" rx="31" fill="#fffaf5"/>
+  <text x="195" y="643" text-anchor="middle" fill="#6f5646" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700">Open directions</text>
+  <text x="195" y="748" text-anchor="middle" fill="#fffaf5" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="600">Dinner picked. No group chat chaos.</text>
+</svg>

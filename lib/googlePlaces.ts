@@ -139,7 +139,11 @@ export async function fetchNearbyRestaurants({
     for (const place of data.places ?? []) {
       const restaurant = mapGooglePlace(place, { lat, lng, origin });
 
-      if (restaurant && prices.includes(restaurant.price)) {
+      if (
+        restaurant &&
+        prices.includes(restaurant.price) &&
+        cuisines.includes(restaurant.cuisine)
+      ) {
         mappedRestaurants.push(restaurant);
       }
     }

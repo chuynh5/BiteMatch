@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844">
+  <rect width="390" height="844" rx="46" fill="#c5ad9a"/>
+  <rect x="30" y="38" width="330" height="86" rx="28" fill="#fff8f0" opacity=".17" stroke="#fff8f0" stroke-opacity=".28"/>
+  <text x="54" y="82" fill="#fffaf5" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="600">Tonight's picks</text>
+  <rect x="236" y="50" width="94" height="58" rx="29" fill="#fff8f0" opacity=".16"/>
+  <text x="263" y="75" fill="#fffaf5" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="600">4</text>
+  <text x="254" y="98" fill="#fffaf5" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="600">friends</text>
+  <rect x="32" y="162" width="326" height="386" rx="34" fill="#a98f7c"/>
+  <circle cx="116" cy="250" r="80" fill="#d47755" opacity=".38"/>
+  <circle cx="252" cy="286" r="98" fill="#efe0ca" opacity=".5"/>
+  <path d="M58 420c38-58 96-52 139-6 43 46 86 14 130-38v172H58z" fill="#647d61" opacity=".28"/>
+  <text x="58" y="396" fill="#fffaf5" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="600">Thai · $</text>
+  <text x="58" y="450" fill="#fffaf5" font-family="Georgia, serif" font-size="54" font-weight="700">Dakzen</text>
+  <text x="58" y="490" fill="#fffaf5" font-family="Inter, Arial, sans-serif" font-size="23" font-weight="600">Somerville · 2.8 mi</text>
+  <rect x="58" y="514" width="86" height="36" rx="18" fill="#fffaf5" opacity=".24"/>
+  <text x="76" y="538" fill="#fffaf5" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="600">noodles</text>
+  <rect x="156" y="514" width="78" height="36" rx="18" fill="#fffaf5" opacity=".24"/>
+  <text x="176" y="538" fill="#fffaf5" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="600">casual</text>
+  <rect x="48" y="594" width="126" height="58" rx="29" fill="#5c4a40"/>
+  <text x="101" y="632" text-anchor="middle" fill="#fffaf5" font-family="Inter, Arial, sans-serif" font-size="32" font-weight="400">×</text>
+  <rect x="216" y="594" width="126" height="58" rx="29" fill="#fffaf5"/>
+  <text x="279" y="632" text-anchor="middle" fill="#6f5646" font-family="Inter, Arial, sans-serif" font-size="28">♥</text>
+  <rect x="56" y="692" width="42" height="6" rx="3" fill="#fffaf5" opacity=".45"/>
+  <rect x="112" y="692" width="42" height="6" rx="3" fill="#fffaf5" opacity=".45"/>
+  <rect x="168" y="692" width="42" height="6" rx="3" fill="#fffaf5" opacity=".45"/>
+  <rect x="224" y="692" width="42" height="6" rx="3" fill="#fffaf5"/>
+  <rect x="280" y="692" width="42" height="6" rx="3" fill="#fffaf5" opacity=".45"/>
+  <text x="195" y="748" text-anchor="middle" fill="#fffaf5" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="600">Swipe, skip, and match on dinner.</text>
+</svg>

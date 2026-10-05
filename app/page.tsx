@@ -39,11 +39,27 @@ const demoParticipants: Participant[] = [
   { id: "sam", name: "Sam", color: "#7c3aed" }
 ];
 
-const roomCode = "4827";
+const createdParticipants: Participant[] = [
+  { id: "you", name: "You", color: "#121212" },
+  { id: "nina", name: "Nina", color: "#d97863" },
+  { id: "leo", name: "Leo", color: "#6e9b8e" },
+  { id: "ari", name: "Ari", color: "#e7b967" },
+  { id: "tess", name: "Tess", color: "#7c3aed" }
+];
+
+const demoRoomCode = "4827";
+const createdRoomCode = "7392";
 const metersPerMile = 1609.34;
 
-function createFriendVotes(restaurantsToVoteOn: Restaurant[]): VoteMap {
-  return ["maya", "jules", "sam"].reduce<VoteMap>((allVotes, participantId) => {
+type JoinNotice = {
+  title: string;
+  message: string;
+};
+
+type RoomMode = "demo" | "joined" | "created";
+
+function createFriendVotes(restaurantsToVoteOn: Restaurant[], participantIds: string[]): VoteMap {
+  return participantIds.reduce<VoteMap>((allVotes, participantId) => {
     allVotes[participantId] = restaurantsToVoteOn.reduce<Record<string, Vote>>(
       (restaurantVotes, restaurant, index) => {
         restaurantVotes[restaurant.id] =
@@ -62,6 +78,9 @@ export default function Home() {
   const [step, setStep] = useState<"landing" | "setup" | "room">("landing");
   const [name, setName] = useState("Cara");
   const [joinCode, setJoinCode] = useState("");
+  const [joinNotice, setJoinNotice] = useState<JoinNotice | null>(null);
+  const [currentRoomCode, setCurrentRoomCode] = useState(demoRoomCode);
+  const [roomMode, setRoomMode] = useState<RoomMode>("demo");
   const [preferences, setPreferences] = useState<Preferences>({
     cuisines: ["Italian", "Japanese", "Mexican", "Thai"],
     prices: ["$", "$$"],
@@ -83,11 +102,16 @@ export default function Home() {
   );
 
   const participants = useMemo(
-    () => [
-      { ...demoParticipants[0], name: name.trim() || "You" },
-      ...demoParticipants.slice(1)
-    ],
-    [name]
+    () => {
+      const roomParticipants =
+        roomMode === "created" ? createdParticipants : demoParticipants;
+
+      return [
+        { ...roomParticipants[0], name: name.trim() || "You" },
+        ...roomParticipants.slice(1)
+      ];
+    },
+    [name, roomMode]
   );
 
   const filteredRestaurants = useMemo(
@@ -97,10 +121,15 @@ export default function Home() {
 
   const roomVotes = useMemo(
     () => ({
-      ...createFriendVotes(filteredRestaurants),
+      ...createFriendVotes(
+        filteredRestaurants,
+        participants
+          .map((participant) => participant.id)
+          .filter((participantId) => participantId !== "you")
+      ),
       ...votes
     }),
-    [filteredRestaurants, votes]
+    [filteredRestaurants, participants, votes]
   );
 
   const match = useMemo(
@@ -162,6 +191,7 @@ export default function Home() {
         ? current.cuisines.filter((item) => item !== cuisine)
         : [...current.cuisines, cuisine]
     }));
+    resetDemo();
   }
 
   function togglePrice(price: PriceLevel) {
@@ -171,6 +201,12 @@ export default function Home() {
         ? current.prices.filter((item) => item !== price)
         : [...current.prices, price]
     }));
+    resetDemo();
+  }
+
+  function updatePreferences(nextPreferences: Preferences) {
+    setPreferences(nextPreferences);
+    resetDemo();
   }
 
   function handleVote(restaurantId: string, vote: Vote) {
@@ -189,6 +225,34 @@ export default function Home() {
   function resetDemo() {
     setVotes({});
     setActiveIndex(0);
+  }
+
+  function handleJoinRoom(code: string) {
+    const normalizedCode = code.replace(/\D/g, "").slice(0, 4);
+
+    setJoinCode(normalizedCode);
+
+    if (normalizedCode.length < 4) {
+      setJoinNotice({
+        title: "Enter a 4-digit code",
+        message: `Room codes are four numbers. Try the demo room code ${demoRoomCode}.`
+      });
+      return;
+    }
+
+    if (normalizedCode === demoRoomCode) {
+      setJoinNotice(null);
+      setCurrentRoomCode(demoRoomCode);
+      setRoomMode("joined");
+      resetDemo();
+      setStep("room");
+      return;
+    }
+
+    setJoinNotice({
+      title: "Room not found",
+      message: `Room ${normalizedCode} does not exist in this demo. Try ${demoRoomCode} to join the sample dinner room.`
+    });
   }
 
   async function loadNearbyRestaurants() {
@@ -256,11 +320,8 @@ export default function Home() {
             BiteMatch
           </button>
           <div className="nav-actions">
-            <button className="ghost-button" onClick={() => setStep("setup")}>
-              Join room
-            </button>
             <button className="primary-button" onClick={() => setStep("setup")}>
-              Start matching
+              Start Matching
               <ArrowRight size={18} />
             </button>
           </div>
@@ -269,7 +330,20 @@ export default function Home() {
         {step === "landing" && (
           <Landing
             onCreate={() => setStep("setup")}
-            onDemo={() => setStep("room")}
+            onDemo={() => {
+              setCurrentRoomCode(demoRoomCode);
+              setRoomMode("demo");
+              resetDemo();
+              setStep("room");
+            }}
+            joinCode={joinCode}
+            setJoinCode={(code) => {
+              setJoinCode(code);
+              setJoinNotice(null);
+            }}
+            onJoinRoom={handleJoinRoom}
+            joinNotice={joinNotice}
+            onDismissJoinNotice={() => setJoinNotice(null)}
           />
         )}
 
@@ -277,17 +351,18 @@ export default function Home() {
           <Setup
             name={name}
             setName={setName}
-            joinCode={joinCode}
-            setJoinCode={setJoinCode}
             preferences={preferences}
-            setPreferences={setPreferences}
+            setPreferences={updatePreferences}
             onCuisineToggle={toggleCuisine}
             onPriceToggle={togglePrice}
             onUseLocation={loadNearbyRestaurants}
             locationStatus={locationStatus}
             locationMessage={locationMessage}
             isPlacesConfigured={isPlacesConfigured}
+            roomCode={createdRoomCode}
             onEnterRoom={() => {
+              setCurrentRoomCode(createdRoomCode);
+              setRoomMode("created");
               setActiveIndex(0);
               setStep("room");
             }}
@@ -305,6 +380,8 @@ export default function Home() {
             roomVotes={roomVotes}
             match={match}
             completedVotes={completedVotes}
+            roomCode={currentRoomCode}
+            roomMode={roomMode}
             restaurantSource={restaurantSource}
             locationMessage={locationMessage}
             onVote={handleVote}
@@ -319,11 +396,29 @@ export default function Home() {
 
 function Landing({
   onCreate,
-  onDemo
+  onDemo,
+  joinCode,
+  setJoinCode,
+  onJoinRoom,
+  joinNotice,
+  onDismissJoinNotice
 }: {
   onCreate: () => void;
   onDemo: () => void;
+  joinCode: string;
+  setJoinCode: (code: string) => void;
+  onJoinRoom: (code: string) => void;
+  joinNotice: JoinNotice | null;
+  onDismissJoinNotice: () => void;
 }) {
+  const prototypeRestaurants = [
+    restaurants[0],
+    restaurants[2],
+    restaurants[3],
+    restaurants[4],
+    restaurants[1]
+  ];
+
   return (
     <div className="landing">
       <div className="hero-copy">
@@ -338,72 +433,139 @@ function Landing({
         </p>
         <div className="hero-actions">
           <button className="primary-button large" onClick={onCreate}>
-            Create a group
+            Create a Group
             <Plus size={19} />
           </button>
           <button className="secondary-button large" onClick={onDemo}>
-            Try the demo room
+            Try the Demo Room
           </button>
         </div>
+        <form
+          className="home-join"
+          onSubmit={(event) => {
+            event.preventDefault();
+            onJoinRoom(joinCode);
+          }}
+        >
+          <label htmlFor="home-room-code">Join a Room</label>
+          <div className="home-join-row">
+            <input
+              id="home-room-code"
+              className="text-input"
+              value={joinCode}
+              onChange={(event) =>
+                setJoinCode(event.target.value.replace(/\D/g, "").slice(0, 4))
+              }
+              placeholder="Room code"
+              inputMode="numeric"
+            />
+            <button className="secondary-button" type="submit">
+              Join
+              <Search size={16} />
+            </button>
+          </div>
+          {joinNotice ? (
+            <div className="join-notice" role="status">
+              <div>
+                <strong>{joinNotice.title}</strong>
+                <span>{joinNotice.message}</span>
+              </div>
+              <button type="button" onClick={onDismissJoinNotice} aria-label="Dismiss room message">
+                <X size={14} />
+              </button>
+            </div>
+          ) : null}
+        </form>
         <div className="metric-strip" aria-label="Product highlights">
           <span>
             <Clock3 size={17} />
-            Under 5 minutes
+            Under 5 Minutes
           </span>
           <span>
             <Users size={17} />
-            2-6 friends
+            2-5 Friends
           </span>
           <span>
             <Heart size={17} />
-            Private voting
+            Private Voting
           </span>
         </div>
       </div>
 
       <div className="hero-visual" aria-label="BiteMatch preview">
-        <div className="swipe-card-stack" aria-hidden="true">
-          <span className="stack-card stack-card-one" />
-          <span className="stack-card stack-card-two" />
-        </div>
-        <div className="phone-mockup">
-          <div className="phone-status">
-            <span>Tonight&apos;s picks</span>
-            <strong>4 friends</strong>
-          </div>
-          <div className="phone-card">
-            <Image
-              src={restaurants[0].menuImages[0].src}
-              alt={restaurants[0].menuImages[0].alt}
-              fill
-              priority
-              sizes="280px"
-            />
-            <div className="phone-card-copy">
-              <span>Italian · $$</span>
-              <strong>Mida</strong>
-              <small>South End · 1.2 mi</small>
-              <div className="profile-tags">
-                <em>Fresh pasta</em>
-                <em>Shareable</em>
+        <div className="custom-phone-mockup">
+          <div className="custom-phone-side side-left" aria-hidden="true" />
+          <div className="custom-phone-side side-right" aria-hidden="true" />
+          <div className="custom-phone-screen">
+            <div className="phone-system-status" aria-hidden="true">
+              <span>9:41</span>
+              <div>
+                <i className="signal-bars" />
+                <i className="lte-mark">LTE</i>
+                <i className="battery-mark" />
               </div>
             </div>
-          </div>
-          <div className="phone-vote-row">
-            <span aria-label="Pass">
-              <X size={18} />
-            </span>
-            <span aria-label="Like">
-              <Heart size={18} fill="currentColor" />
-            </span>
-          </div>
-          <p className="swipe-hint">Swipe through restaurants. Match when everyone says yes.</p>
-        </div>
-        <div className="floating-card match-card">
-          <PartyPopper size={20} />
-          <div>
-            <strong>It&apos;s a BiteMatch</strong>
-            <span>Mida is the one</span>
+            <div className="custom-phone-notch" aria-hidden="true" />
+            <div className="phone-status">
+              <span>Tonight&apos;s Picks</span>
+              <strong>4 Friends</strong>
+            </div>
+            <div className="prototype-stage compact-prototype-stage" aria-label="Animated restaurant voting demo">
+              {prototypeRestaurants.map((restaurant, index) => (
+                <article
+                  className={`phone-card prototype-card prototype-card-${index + 1}`}
+                  key={restaurant.id}
+                >
+                  <Image
+                    src={restaurant.menuImages[0].src}
+                    alt={restaurant.menuImages[0].alt}
+                    fill
+                    priority={index === 0}
+                    sizes="220px"
+                  />
+                  <div className="swipe-stamp swipe-stamp-like">Like</div>
+                  <div className="swipe-stamp swipe-stamp-pass">Pass</div>
+                  <div className="phone-card-copy">
+                    <span>
+                      {restaurant.cuisine} · {restaurant.price}
+                    </span>
+                    <strong>{restaurant.name}</strong>
+                    <small>
+                      {restaurant.neighborhood} · {restaurant.distance} mi
+                    </small>
+                    <div className="profile-tags">
+                      {restaurant.tags.slice(0, 2).map((tag) => (
+                        <em key={tag}>{tag}</em>
+                      ))}
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+            <div className="prototype-match-pop" aria-hidden="true">
+              <span>
+                <PartyPopper size={13} />
+                It&apos;s a match
+              </span>
+              <strong>Tora Japanese</strong>
+              <small>Everyone liked this one.</small>
+            </div>
+            <div className="phone-vote-row">
+              <span aria-label="Pass">
+                <X size={18} />
+              </span>
+              <span aria-label="Like">
+                <Heart size={18} fill="currentColor" />
+              </span>
+            </div>
+            <div className="prototype-progress" aria-hidden="true">
+              <span />
+              <span />
+              <span />
+              <span />
+              <span />
+            </div>
+            <p className="swipe-hint">Swipe, Skip &amp; Match on Dinner.</p>
           </div>
         </div>
       </div>
@@ -414,8 +576,6 @@ function Landing({
 function Setup({
   name,
   setName,
-  joinCode,
-  setJoinCode,
   preferences,
   setPreferences,
   onCuisineToggle,
@@ -424,12 +584,11 @@ function Setup({
   locationStatus,
   locationMessage,
   isPlacesConfigured,
+  roomCode,
   onEnterRoom
 }: {
   name: string;
   setName: (name: string) => void;
-  joinCode: string;
-  setJoinCode: (code: string) => void;
   preferences: Preferences;
   setPreferences: (preferences: Preferences) => void;
   onCuisineToggle: (cuisine: Cuisine) => void;
@@ -438,8 +597,19 @@ function Setup({
   locationStatus: "idle" | "locating" | "live" | "fallback" | "error";
   locationMessage: string;
   isPlacesConfigured: boolean;
+  roomCode: string;
   onEnterRoom: () => void;
 }) {
+  const unavailableCuisines = preferences.cuisines.filter(
+    (cuisine) =>
+      !restaurants.some(
+        (restaurant) =>
+          restaurant.cuisine === cuisine &&
+          preferences.prices.includes(restaurant.price) &&
+          restaurant.distance <= preferences.maxDistance
+      )
+  );
+
   return (
     <div className="setup-grid">
       <section className="setup-panel intro-panel">
@@ -461,26 +631,6 @@ function Setup({
           placeholder="Your name"
         />
 
-        <div className="join-box">
-          <label className="input-label" htmlFor="code">
-            Join an existing room
-          </label>
-          <div className="input-with-button">
-            <input
-              id="code"
-              className="text-input"
-              value={joinCode}
-              onChange={(event) =>
-                setJoinCode(event.target.value.replace(/\D/g, "").slice(0, 4))
-              }
-              placeholder="Room code"
-              inputMode="numeric"
-            />
-            <button className="icon-button" title="Search for room">
-              <Search size={18} />
-            </button>
-          </div>
-        </div>
       </section>
 
       <section className="setup-panel">
@@ -502,6 +652,15 @@ function Setup({
               </button>
             ))}
           </div>
+          {unavailableCuisines.length > 0 ? (
+            <div className="availability-note">
+              <strong>Heads up</strong>
+              <span>
+                No {unavailableCuisines.join(", ")} restaurants match the current
+                price range within {preferences.maxDistance.toFixed(1)} mi.
+              </span>
+            </div>
+          ) : null}
         </div>
 
         <div className="control-block">
@@ -572,7 +731,7 @@ function Setup({
         </div>
 
         <button className="primary-button full" onClick={onEnterRoom}>
-          Enter room {joinCode ? joinCode : roomCode}
+          Create room {roomCode}
           <ArrowRight size={18} />
         </button>
       </section>
@@ -590,6 +749,8 @@ function Room({
   roomVotes,
   match,
   completedVotes,
+  roomCode,
+  roomMode,
   restaurantSource,
   locationMessage,
   onVote,
@@ -605,18 +766,46 @@ function Room({
   roomVotes: VoteMap;
   match?: Restaurant;
   completedVotes: number;
+  roomCode: string;
+  roomMode: RoomMode;
   restaurantSource: RestaurantSource;
   locationMessage: string;
   onVote: (restaurantId: string, vote: Vote) => void;
   onReset: () => void;
   onEditPreferences: () => void;
 }) {
+  const likedCount = activeRestaurant
+    ? participants.filter(
+        (participant) => roomVotes[participant.id]?.[activeRestaurant.id] === "like"
+      ).length
+    : 0;
+  const hasUserVotedOnActive =
+    activeRestaurant ? Boolean(votes.you?.[activeRestaurant.id]) : false;
+  const activeStatus = activeRestaurant
+    ? hasUserVotedOnActive
+      ? `${likedCount}/${participants.length} friends like this option`
+      : "Vote to reveal where the group overlaps"
+    : "Waiting for a restaurant match";
+  const pendingCount = Math.max(restaurants.length - completedVotes, 0);
+  const pendingLabel = `${pendingCount} option${pendingCount === 1 ? "" : "s"} left`;
+  const noResultCuisineLabel =
+    preferences.cuisines.length > 0 ? preferences.cuisines.join(", ") : "any cuisine";
+  const noResultPriceLabel =
+    preferences.prices.length > 0 ? preferences.prices.join("/") : "any price";
+  const roomModeLabel =
+    roomMode === "created"
+      ? "Created Room"
+      : roomMode === "joined"
+        ? "Joined Demo Room"
+        : "Demo Room";
+
   return (
     <div className="room-layout">
       <aside className="room-sidebar">
         <div className="room-code">
           <span>Room code</span>
           <strong>{roomCode}</strong>
+          <em>{roomModeLabel}</em>
           <button className="icon-button" title="Share room">
             <Share2 size={18} />
           </button>
@@ -642,7 +831,7 @@ function Room({
         <div className="preference-summary">
           <span>Tonight&apos;s filters</span>
           <p>
-            {preferences.cuisines.slice(0, 3).join(", ") || "Any cuisine"} ·{" "}
+            {preferences.cuisines.join(", ") || "Any cuisine"} ·{" "}
             {preferences.prices.join("/")} · {preferences.maxDistance} mi
           </p>
           <div className={restaurantSource !== "curated" ? "source-pill live" : "source-pill"}>
@@ -670,13 +859,18 @@ function Room({
           <>
             <div className="stage-heading">
               <div>
-                <div className="section-kicker">Private voting</div>
                 <h2>Vote quietly. Match when it clicks.</h2>
-                <p>{locationMessage}</p>
+                <p className="quiet-note">
+                  Private voting keeps everyone honest. {locationMessage}
+                </p>
               </div>
               <span>
-                {completedVotes}/{restaurants.length} reviewed
+                {completedVotes}/{restaurants.length} options reviewed
               </span>
+            </div>
+            <div className="room-activity">
+              <span>{activeStatus}</span>
+              <strong>{pendingLabel}</strong>
             </div>
 
             <RestaurantCard restaurant={activeRestaurant} />
@@ -709,8 +903,16 @@ function Room({
           </>
         ) : (
           <div className="empty-state">
-            <h2>No restaurants match those filters.</h2>
-            <p>Try widening the cuisine, price, or distance preferences.</p>
+            <h2>Too specific for dinner.</h2>
+            <p>
+              No restaurants found for {noResultCuisineLabel} at {noResultPriceLabel}
+              {" "}within {preferences.maxDistance} mi.
+            </p>
+            <div className="empty-suggestions">
+              <span>Add another cuisine</span>
+              <span>Open up price</span>
+              <span>Widen distance</span>
+            </div>
             <button className="primary-button" onClick={onEditPreferences}>
               Adjust filters
             </button>
@@ -847,15 +1049,20 @@ function MatchResult({
           <PartyPopper size={28} />
         </div>
         <span className="section-kicker">Group match</span>
-        <h2>It&apos;s a BiteMatch.</h2>
+        <h2>Dinner is decided.</h2>
         <p>
-          Everyone privately liked <strong>{restaurant.name}</strong>. Time to
-          send directions and start ordering.
+          Everyone privately liked <strong>{restaurant.name}</strong>. Send the
+          directions and skip the group chat spiral.
         </p>
+        <div className="match-pill-row">
+          <span>{restaurant.cuisine}</span>
+          <span>{restaurant.price}</span>
+          <span>{restaurant.distance} mi</span>
+        </div>
         <div className="match-avatars">
           {participants.map((participant) => (
             <span key={participant.id} style={{ background: participant.color }}>
-              <Check size={15} />
+              {participant.name.charAt(0)}
             </span>
           ))}
         </div>
@@ -871,7 +1078,7 @@ function MatchResult({
           </small>
         </div>
         <a
-          className="primary-button"
+          className="primary-button match-action"
           href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
             restaurant.mapQuery
           )}`}
@@ -881,7 +1088,7 @@ function MatchResult({
           Get directions
           <ExternalLink size={18} />
         </a>
-        <button className="secondary-button" onClick={onReset}>
+        <button className="secondary-button match-action" onClick={onReset}>
           Restart demo
         </button>
       </div>
