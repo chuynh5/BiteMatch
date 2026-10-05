@@ -59,6 +59,7 @@ export function DishArt({
             alt={`Illustration of ${restaurant.cuisine.toLowerCase()} food`}
             fill
             priority={priority}
+            quality={90}
             sizes={sizes}
           />
         </div>
