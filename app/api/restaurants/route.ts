@@ -10,6 +10,8 @@ const cuisines = [
   "American",
   "Mediterranean",
   "Korean",
+  "Chinese",
+  "Greek",
   "Indian"
 ] satisfies Cuisine[];
 

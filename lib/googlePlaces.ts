@@ -42,6 +42,8 @@ const cuisineTypeMap: Record<Cuisine, string[]> = {
   Thai: ["thai_restaurant"],
   American: ["american_restaurant"],
   Mediterranean: ["mediterranean_restaurant"],
+  Greek: ["greek_restaurant"],
+  Chinese: ["chinese_restaurant"],
   Korean: ["korean_restaurant"],
   Indian: ["indian_restaurant"]
 };
@@ -54,7 +56,8 @@ const typeCuisineMap: Record<string, Cuisine> = {
   thai_restaurant: "Thai",
   american_restaurant: "American",
   mediterranean_restaurant: "Mediterranean",
-  greek_restaurant: "Mediterranean",
+  greek_restaurant: "Greek",
+  chinese_restaurant: "Chinese",
   korean_restaurant: "Korean",
   indian_restaurant: "Indian"
 };
@@ -326,7 +329,6 @@ function mapOsmElement(
   }
 
   const cuisine = inferOsmCuisine(tags.cuisine, tags.amenity);
-  const fallback = curatedRestaurants.find((restaurant) => restaurant.cuisine === cuisine) ?? curatedRestaurants[0];
   const distance = milesBetween(lat, lng, placeLat, placeLng);
   const address = formatOsmAddress(tags);
   const neighborhood = tags["addr:city"] ?? tags["addr:suburb"] ?? "Nearby";
@@ -341,8 +343,10 @@ function mapOsmElement(
     address,
     rating: 0,
     distance,
-    image: fallback.image,
-    menuImages: fallback.menuImages,
+    // OpenStreetMap has no photos. Leave these empty so the UI shows a
+    // branded placeholder instead of another restaurant's food photos.
+    image: "",
+    menuImages: [],
     mapQuery: `${name} ${address}`,
     tags: [
       tags.amenity === "cafe" ? "Cafe" : "Restaurant",
@@ -361,7 +365,9 @@ function inferOsmCuisine(cuisineTag?: string, amenity?: string): Cuisine {
   if (cuisine.includes("japanese") || cuisine.includes("sushi") || cuisine.includes("ramen")) return "Japanese";
   if (cuisine.includes("mexican") || cuisine.includes("taco")) return "Mexican";
   if (cuisine.includes("thai")) return "Thai";
-  if (cuisine.includes("mediterranean") || cuisine.includes("greek") || cuisine.includes("middle_eastern")) return "Mediterranean";
+  if (cuisine.includes("greek")) return "Greek";
+  if (cuisine.includes("chinese") || cuisine.includes("dumpling") || cuisine.includes("dim_sum")) return "Chinese";
+  if (cuisine.includes("mediterranean") || cuisine.includes("middle_eastern")) return "Mediterranean";
   if (cuisine.includes("korean")) return "Korean";
   if (cuisine.includes("indian")) return "Indian";
   if (amenity === "cafe") return "American";
