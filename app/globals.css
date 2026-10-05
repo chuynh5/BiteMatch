@@ -2826,3 +2826,21 @@ a.brand {
 .match-photo .photo-carousel {
   cursor: pointer;
 }
+
+.tie-note {
+  align-items: flex-start;
+  background: var(--lilac);
+  border-radius: var(--radius-sm);
+  color: var(--ink) !important;
+  display: flex;
+  font-size: 0.9rem;
+  font-weight: 700;
+  gap: 8px;
+  line-height: 1.4 !important;
+  padding: 10px 12px;
+}
+
+.tie-note svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}

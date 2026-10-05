@@ -140,7 +140,7 @@ export function LiveRoom({ code }: { code: string }) {
   const everyoneDone = participants.every((person) => reviewedBy(person.id) >= restaurants.length);
   const match = participants.length >= 2 ? getMatch(restaurants, roomVotes, participantIds) : undefined;
   const topPick =
-    participants.length >= 2 && everyoneDone ? getTopPick(restaurants, roomVotes, participantIds)?.restaurant : undefined;
+    participants.length >= 2 && everyoneDone ? getTopPick(restaurants, roomVotes, participantIds) : undefined;
   const waitingFor = participants.filter((person) => person.id !== meId && reviewedBy(person.id) < restaurants.length);
 
   return (
