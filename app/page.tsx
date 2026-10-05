@@ -9,6 +9,7 @@ import { Setup, type LocationStatus } from "@/components/Setup";
 import { restaurants } from "@/data/restaurants";
 import { createFriendVotes } from "@/lib/demoVotes";
 import { MAX_ROOM_RESTAURANTS } from "@/lib/limits";
+import { pickForRoom } from "@/lib/pickRestaurants";
 import { getRoomStore, myIdentity } from "@/lib/rooms";
 import { filterRestaurants, getMatch, getTopPick } from "@/lib/matching";
 import type {
@@ -152,7 +153,7 @@ export default function Home() {
       const { code, me } = await getRoomStore().createRoom({
         hostName,
         preferences,
-        restaurants: filteredRestaurants.slice(0, MAX_ROOM_RESTAURANTS)
+        restaurants: pickForRoom(filteredRestaurants, preferences.cuisines, MAX_ROOM_RESTAURANTS)
       });
       myIdentity.set(code, me.id);
       router.push(`/room?code=${code}`);

@@ -63,12 +63,20 @@ How it works:
 - There are no accounts. The 4-digit room code is the key, which is fine among friends but not private.
 - Without the two variables, the app falls back to **testing mode**: rooms are saved in your browser only, so you can try it with two tabs.
 
+## Picking the 10 Restaurants
+
+Rooms hold up to 10 places (`lib/pickRestaurants.ts`):
+
+- Places rated 4.0+ go first, best-reviewed first. A 4.7 with 1,200 reviews beats a 5.0 with 3.
+- Selected cuisines take turns, so one cuisine can't crowd out the others. If a cuisine runs short, the rest fill in.
+- Lower-rated places only fill leftover spots.
+
 ## Keeping Google at $0
 
 Google Places is billed per request, with a free monthly allowance. BiteMatch caps its own usage per month so it never goes past that:
 
 - **Photos:** 950 new photo loads a month (Google gives 1,000 free). Each photo is cached for a day, so friends in the same room share one load.
-- **Nearby searches:** 4,500 a month (5,000 free). Google also limits this to 100 a day. After that, rooms use OpenStreetMap.
+- **Nearby searches:** 950 a month (1,000 free, since the search asks for ratings and price levels). Google also limits this to 100 a day. After that, rooms use OpenStreetMap.
 
 The counter lives in Supabase. Run `supabase/usage-cap.sql` in the SQL Editor to set it up (safe to re-run). Without it, the app makes no Google requests at all and shows illustrations instead.
 
