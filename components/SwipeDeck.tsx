@@ -122,7 +122,7 @@ function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
       </div>
       <div className="restaurant-content">
         <div className="restaurant-title">
-          <span className="restaurant-meta">{restaurant.cuisine.toLowerCase()}</span>
+          <span className="restaurant-meta">{restaurant.cuisine}</span>
           <h3>{restaurant.name}</h3>
         </div>
         <p>{restaurant.vibe}</p>

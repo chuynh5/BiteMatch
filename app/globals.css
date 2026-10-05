@@ -28,7 +28,6 @@
 
   --font-sans: "Nunito Variable", ui-rounded, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-display: "Fraunces Variable", Georgia, serif;
-  --font-hand: "Gaegu", "Comic Sans MS", cursive;
 }
 
 * {
@@ -63,7 +62,7 @@ h1,
 h2,
 h3 {
   font-family: var(--font-display);
-  font-variation-settings: "SOFT" 100, "WONK" 1;
+  font-variation-settings: "SOFT" 50, "WONK" 0;
   font-weight: 650;
   letter-spacing: -0.01em;
 }
@@ -96,7 +95,7 @@ h3 {
   display: inline-flex;
   font-family: var(--font-display);
   font-size: 1.3rem;
-  font-variation-settings: "SOFT" 100, "WONK" 1;
+  font-variation-settings: "SOFT" 50, "WONK" 0;
   font-weight: 700;
   gap: 10px;
   padding: 0;
@@ -244,8 +243,7 @@ h3 {
   align-items: center;
   color: var(--coral-deep);
   display: inline-flex;
-  font-family: var(--font-hand);
-  font-size: 1.25rem;
+  font-size: 0.9rem;
   font-weight: 700;
   gap: 6px;
   line-height: 1;
@@ -270,7 +268,7 @@ h3 {
 .hero-copy h1 em {
   color: var(--coral);
   display: inline-block;
-  font-style: italic;
+  font-style: normal;
   position: relative;
 }
 
@@ -313,8 +311,7 @@ h3 {
 }
 
 .home-join label {
-  font-family: var(--font-hand);
-  font-size: 1.15rem;
+  font-size: 0.83rem;
   font-weight: 700;
 }
 
@@ -532,8 +529,7 @@ h3 {
 }
 
 .phone-status span {
-  font-family: var(--font-hand);
-  font-size: 1.2rem;
+  font-size: 0.86rem;
   font-weight: 700;
 }
 
@@ -598,8 +594,7 @@ h3 {
   background: white;
   border: 2.5px solid currentColor;
   border-radius: 12px;
-  font-family: var(--font-hand);
-  font-size: 1.1rem;
+  font-size: 0.79rem;
   font-weight: 700;
   opacity: 0;
   padding: 1px 10px;
@@ -649,7 +644,7 @@ h3 {
   display: block;
   font-family: var(--font-display);
   font-size: 1.35rem;
-  font-variation-settings: "SOFT" 100, "WONK" 1;
+  font-variation-settings: "SOFT" 50, "WONK" 0;
   font-weight: 650;
   line-height: 1.05;
   margin: 2px 0;
@@ -717,8 +712,7 @@ h3 {
 
 .swipe-hint {
   color: var(--muted);
-  font-family: var(--font-hand);
-  font-size: 1rem;
+  font-size: 0.78rem;
   margin: 0;
   text-align: center;
 }
@@ -745,8 +739,7 @@ h3 {
   align-items: center;
   color: var(--coral-deep);
   display: inline-flex;
-  font-family: var(--font-hand);
-  font-size: 1.15rem;
+  font-size: 0.83rem;
   font-weight: 700;
   gap: 5px;
 }
@@ -759,7 +752,7 @@ h3 {
 .prototype-match-pop strong {
   font-family: var(--font-display);
   font-size: 1.6rem;
-  font-variation-settings: "SOFT" 100, "WONK" 1;
+  font-variation-settings: "SOFT" 50, "WONK" 0;
   line-height: 1.05;
   margin-top: 4px;
 }
@@ -839,7 +832,7 @@ h3 {
 }
 
 .dish-art-image {
-  inset: 8% 10%;
+  inset: 9% 8%;
   position: absolute;
 }
 
@@ -889,8 +882,7 @@ h3 {
 
 .dish-art-placeholder em {
   color: var(--muted);
-  font-family: var(--font-hand);
-  font-size: 1.4rem;
+  font-size: 1.01rem;
   font-style: normal;
   font-weight: 700;
 }
@@ -907,8 +899,7 @@ h3 {
 }
 
 .food-fallback span {
-  font-family: var(--font-hand);
-  font-size: 1.3rem;
+  font-size: 0.94rem;
   font-weight: 700;
 }
 
@@ -994,8 +985,7 @@ h3 {
   border-radius: 50%;
   content: counter(step);
   display: flex;
-  font-family: var(--font-hand);
-  font-size: 1.3rem;
+  font-size: 0.94rem;
   font-weight: 700;
   grid-row: span 2;
   height: 40px;
@@ -1063,8 +1053,7 @@ h3 {
 
 .availability-note strong {
   color: var(--butter-deep);
-  font-family: var(--font-hand);
-  font-size: 1.1rem;
+  font-size: 0.79rem;
 }
 
 .segmented-control {
@@ -1122,8 +1111,7 @@ h3 {
 .preference-summary > span {
   color: var(--coral-deep);
   display: block;
-  font-family: var(--font-hand);
-  font-size: 1.1rem;
+  font-size: 0.79rem;
   font-weight: 700;
   margin-bottom: 2px;
 }
@@ -1250,8 +1238,7 @@ h3 {
   background: white;
   border: 3px solid currentColor;
   border-radius: 14px;
-  font-family: var(--font-hand);
-  font-size: 1.8rem;
+  font-size: 1.3rem;
   font-weight: 700;
   padding: 0 14px;
   pointer-events: none;
@@ -1304,8 +1291,7 @@ h3 {
 
 .restaurant-meta {
   color: var(--coral-deep);
-  font-family: var(--font-hand);
-  font-size: 1.2rem;
+  font-size: 0.86rem;
   font-weight: 700;
 }
 
@@ -1437,8 +1423,7 @@ h3 {
 
 .swipe-tip {
   color: var(--muted);
-  font-family: var(--font-hand);
-  font-size: 1.05rem;
+  font-size: 0.78rem;
   margin: 12px 0 0;
   text-align: center;
 }
@@ -1460,7 +1445,7 @@ h3 {
   display: block;
   font-family: var(--font-display);
   font-size: 2rem;
-  font-variation-settings: "SOFT" 100, "WONK" 1;
+  font-variation-settings: "SOFT" 50, "WONK" 0;
   letter-spacing: 0.06em;
   line-height: 1;
 }
@@ -1557,8 +1542,7 @@ h3 {
 
 .results-hint {
   color: var(--muted);
-  font-family: var(--font-hand);
-  font-size: 1.05rem;
+  font-size: 0.78rem;
   margin: -6px 0 12px;
 }
 
@@ -1602,8 +1586,7 @@ h3 {
 }
 
 .result-row.locked small {
-  font-family: var(--font-hand);
-  font-size: 0.95rem;
+  font-size: 0.78rem;
 }
 
 .vote-meter {
@@ -1734,7 +1717,7 @@ h3 {
 .matched-restaurant > strong {
   font-family: var(--font-display);
   font-size: 1.35rem;
-  font-variation-settings: "SOFT" 100, "WONK" 1;
+  font-variation-settings: "SOFT" 50, "WONK" 0;
 }
 
 .matched-restaurant > span {
@@ -1823,8 +1806,7 @@ h3 {
 
 .phone-preview-copy span {
   color: var(--coral-deep);
-  font-family: var(--font-hand);
-  font-size: 1.3rem;
+  font-size: 0.94rem;
   font-weight: 700;
 }
 
@@ -2029,4 +2011,34 @@ h3 {
   .prototype-card:not(.prototype-card-1) {
     opacity: 0;
   }
+}
+
+/* ---------- Small labels: one consistent style --------------------- */
+
+.eyebrow,
+.section-kicker,
+.restaurant-meta,
+.home-join label,
+.location-box span,
+.room-link span,
+.room-code span,
+.preference-summary > span,
+.availability-note strong,
+.phone-preview-copy span {
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.drag-stamp,
+.swipe-stamp {
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.swipe-stamp {
+  font-size: 0.72rem;
+  padding: 3px 9px;
 }

@@ -17,19 +17,8 @@ const illustrations: Partial<Record<Cuisine, string>> = {
   Greek: "/illustrations/greek.png"
 };
 
-/** Soft pastel backdrops that sit behind each illustration. */
-export const cuisineBackdrops: Record<Cuisine, string> = {
-  Italian: "#fde4dc",
-  Japanese: "#fde6ec",
-  Mexican: "#fdf0d2",
-  Thai: "#e9f3d8",
-  American: "#fbe8d6",
-  Mediterranean: "#e3f0e2",
-  Korean: "#f6e3dc",
-  Chinese: "#fdebd8",
-  Greek: "#e2edf7",
-  Indian: "#fdecd2"
-};
+/** Every dish sits on the same soft pink, so the cards read as one set. */
+const backdrop = "#fde6ec";
 
 export function DishArt({
   restaurant,
@@ -42,7 +31,6 @@ export function DishArt({
   priority?: boolean;
   bob?: boolean;
 }) {
-  const backdrop = cuisineBackdrops[restaurant.cuisine] ?? "#fbe8d6";
 
   // Real Google Places photos win when we have them.
   if (restaurant.source === "google" && restaurant.image) {
@@ -77,7 +65,7 @@ export function DishArt({
       ) : (
         <div className="dish-art-placeholder" aria-label={`${restaurant.cuisine} food`} role="img">
           <span aria-hidden="true">🍽️</span>
-          <em>{restaurant.cuisine.toLowerCase()}</em>
+          <em>{restaurant.cuisine}</em>
         </div>
       )}
     </div>
