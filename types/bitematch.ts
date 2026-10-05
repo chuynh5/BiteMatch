@@ -5,6 +5,8 @@ export type Cuisine =
   | "Thai"
   | "American"
   | "Mediterranean"
+  | "Greek"
+  | "Chinese"
   | "Korean"
   | "Indian";
 

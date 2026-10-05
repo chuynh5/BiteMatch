@@ -149,7 +149,7 @@ export const restaurants: Restaurant[] = [
   {
     id: "greco",
     name: "GRECO",
-    cuisine: "Mediterranean",
+    cuisine: "Greek",
     price: "$",
     neighborhood: "Seaport",
     address: "225 Northern Ave, Boston, MA",
@@ -172,8 +172,8 @@ export const restaurants: Restaurant[] = [
       }
     ],
     mapQuery: "GRECO 225 Northern Ave Boston MA",
-    tags: ["pita", "quick bite", "fresh"],
-    vibe: "Fast Mediterranean bowls and pita when nobody wants a big production."
+    tags: ["gyros", "quick bite", "fresh"],
+    vibe: "Fast Greek gyros and pita when nobody wants a big production."
   },
   {
     id: "kaju",
@@ -232,6 +232,21 @@ export const restaurants: Restaurant[] = [
     mapQuery: "Mela 578 Tremont St Boston MA",
     tags: ["curry", "vegetarian-friendly", "group order"],
     vibe: "Classic Indian dishes with plenty of vegetarian-friendly shared options."
+  },
+  {
+    id: "gourmet-dumpling",
+    name: "Gourmet Dumpling House",
+    cuisine: "Chinese",
+    price: "$",
+    neighborhood: "Chinatown",
+    address: "52 Beach St, Boston, MA",
+    rating: 4.4,
+    distance: 0.9,
+    image: "",
+    menuImages: [],
+    mapQuery: "Gourmet Dumpling House 52 Beach St Boston MA",
+    tags: ["soup dumplings", "cheap eats", "big tables"],
+    vibe: "Steamers of soup dumplings to pass around while everyone talks over each other."
   }
 ];
 
@@ -243,6 +258,8 @@ export const cuisineOptions = [
   "American",
   "Mediterranean",
   "Korean",
+  "Chinese",
+  "Greek",
   "Indian"
 ] as const;
 

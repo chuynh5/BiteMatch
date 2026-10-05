@@ -27,6 +27,24 @@ export function getMatch(
   );
 }
 
+/** The restaurant with the most likes, used when nothing was unanimous. */
+export function getTopPick(
+  restaurants: Restaurant[],
+  votes: VoteMap,
+  participantIds: string[]
+) {
+  let best: { restaurant: Restaurant; likes: number } | undefined;
+
+  for (const restaurant of restaurants) {
+    const { likes } = getVoteStats(restaurant, votes, participantIds);
+    if (!best || likes > best.likes) {
+      best = { restaurant, likes };
+    }
+  }
+
+  return best;
+}
+
 export function getVoteStats(
   restaurant: Restaurant,
   votes: VoteMap,

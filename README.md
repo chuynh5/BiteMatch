@@ -43,3 +43,13 @@ When browser location or live lookup is unavailable, the app falls back to the c
 ## Product Scope
 
 V1 intentionally avoids required accounts. Room, participant, and vote state are simulated in the browser for a smooth portfolio demo, while the data and matching code are separated so Supabase/realtime rooms can be added later.
+
+## Illustrations
+
+Restaurant cards use hand-drawn dish illustrations from `public/illustrations/`, one transparent PNG per cuisine. To add art for a cuisine (Mexican, Thai, American and Indian are still missing), drop a square transparent PNG in that folder and list it in `components/DishArt.tsx`. Cuisines without art show a cute placeholder.
+
+## Project Structure
+
+- `app/page.tsx` holds the app state and switches between screens.
+- `components/` has the screens (`Landing`, `Setup`, `Room`, `MatchResult`) and pieces (`SwipeDeck`, `DishArt`, `ShareButton`).
+- `lib/matching.ts` has the match logic, and `lib/demoVotes.ts` simulates the demo friends' votes.
