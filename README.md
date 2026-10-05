@@ -9,6 +9,13 @@
 Picking dinner in a group chat goes in circles: nobody wants to be the one who picks, and the loudest opinion wins. BiteMatch gives everyone a private vote instead. One person makes a room, friends join with a 4-digit code, and everyone swipes through the same short list of real nearby restaurants. When a place gets a yes from everyone, it's a match.
 
 <p align="center">
+  <img src="docs/phone-vote.png" alt="Voting on a real Italian restaurant, with tap-through photos, its rating and distance" width="270" />
+  &nbsp;&nbsp;
+  <img src="docs/phone-match.png" alt="The match screen: everyone liked Lolita Cocina, with directions and a share button" width="270" />
+</p>
+<p align="center"><em>A real room on an iPhone: voting with real restaurant photos, then the match.</em></p>
+
+<p align="center">
   <img src="docs/demo.gif" alt="A phone swiping through restaurant cards and landing on a match" width="280" />
 </p>
 
