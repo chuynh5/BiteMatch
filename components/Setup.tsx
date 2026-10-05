@@ -2,7 +2,6 @@
 
 import { ArrowRight, MapPin, SlidersHorizontal } from "lucide-react";
 import { cuisineOptions, priceOptions } from "@/data/restaurants";
-import { ShareButton } from "@/components/ShareButton";
 import type { Cuisine, Preferences, PriceLevel, Restaurant } from "@/types/bitematch";
 
 export type LocationStatus = "idle" | "locating" | "live" | "fallback" | "error";
@@ -19,8 +18,10 @@ export function Setup({
   locationMessage,
   isPlacesConfigured,
   restaurantOptions,
-  roomCode,
-  onEnterRoom
+  submitLabel,
+  submitting = false,
+  submitError,
+  onSubmit
 }: {
   name: string;
   setName: (name: string) => void;
@@ -34,8 +35,10 @@ export function Setup({
   isPlacesConfigured: boolean;
   /** The restaurants currently loaded (demo or live), used for the availability hint. */
   restaurantOptions: Restaurant[];
-  roomCode: string;
-  onEnterRoom: () => void;
+  submitLabel: string;
+  submitting?: boolean;
+  submitError?: string | null;
+  onSubmit: () => void;
 }) {
   const unavailableCuisines = preferences.cuisines.filter(
     (cuisine) =>
@@ -168,16 +171,14 @@ export function Setup({
           </button>
         </div>
 
-        <div className="room-link">
-          <div>
-            <span>Invite link</span>
-            <strong>Room {roomCode}</strong>
-          </div>
-          <ShareButton roomCode={roomCode} mode="copy" />
-        </div>
+        {submitError ? (
+          <p className="form-error" role="alert">
+            {submitError}
+          </p>
+        ) : null}
 
-        <button className="primary-button full" onClick={onEnterRoom}>
-          Create room {roomCode}
+        <button className="primary-button full setup-submit" onClick={onSubmit} disabled={submitting}>
+          {submitLabel}
           <ArrowRight size={18} />
         </button>
       </section>

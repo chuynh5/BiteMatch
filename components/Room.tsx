@@ -1,6 +1,6 @@
 "use client";
 
-import { Lock } from "lucide-react";
+import { Lock, UserPlus } from "lucide-react";
 import { MatchResult } from "@/components/MatchResult";
 import { ShareButton } from "@/components/ShareButton";
 import { SwipeDeck } from "@/components/SwipeDeck";
@@ -14,51 +14,84 @@ import type {
   VoteMap
 } from "@/types/bitematch";
 
-export type RoomMode = "demo" | "joined" | "created";
+export type RoomMode = "demo" | "joined";
 
 export function Room({
+  meId,
   participants,
   preferences,
   restaurants,
   activeIndex,
-  votes,
   roomVotes,
   match,
   topPick,
+  waitingFor = [],
   roomCode,
-  roomMode,
+  roomLabel,
   restaurantSource,
+  notice,
   onVote,
   onReset,
   onEditPreferences
 }: {
+  /** Which participant is using this screen. */
+  meId: string;
   participants: Participant[];
   preferences: Preferences;
   restaurants: Restaurant[];
   activeIndex: number;
-  votes: VoteMap;
+  /** Everyone's votes, including yours. */
   roomVotes: VoteMap;
   match?: Restaurant;
   topPick?: Restaurant;
+  /** People who still need to finish voting before the result can be shown. */
+  waitingFor?: Participant[];
   roomCode: string;
-  roomMode: RoomMode;
+  roomLabel: string;
   restaurantSource: RestaurantSource;
+  /** Small banner above the card, e.g. when rooms only work on this device. */
+  notice?: string;
   onVote: (restaurantId: string, vote: Vote) => void;
-  onReset: () => void;
-  onEditPreferences: () => void;
+  onReset?: () => void;
+  onEditPreferences?: () => void;
 }) {
   const participantIds = participants.map((participant) => participant.id);
-  const userVotes = votes.you ?? {};
-  const reviewed = restaurants.filter((restaurant) => userVotes[restaurant.id]).length;
+  const userVotes = roomVotes[meId] ?? {};
+  const reviewedBy = (id: string) => restaurants.filter((restaurant) => roomVotes[id]?.[restaurant.id]).length;
+  const reviewed = reviewedBy(meId);
   const activeRestaurant = restaurants[activeIndex];
   const finished = restaurants.length > 0 && activeIndex >= restaurants.length;
-  const roomModeLabel =
-    roomMode === "created" ? "Your room" : roomMode === "joined" ? "Joined demo room" : "Demo room";
+  const alone = participants.length < 2;
 
   let stage;
   if (match) {
     stage = (
       <MatchResult restaurant={match} votes={roomVotes} participants={participants} onReset={onReset} unanimous />
+    );
+  } else if (finished && (alone || waitingFor.length > 0)) {
+    stage = (
+      <div className="waiting-state">
+        <div className="waiting-dots" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+        </div>
+        <h2>{alone ? "Your votes are in." : "Waiting on the group."}</h2>
+        <p>
+          {alone
+            ? "Invite friends with the room code. The match appears once everyone has voted."
+            : `Still voting: ${waitingFor.map((person) => person.name).join(", ")}. This updates by itself.`}
+        </p>
+        {alone ? (
+          <div className="waiting-invite">
+            <UserPlus size={18} />
+            <span>
+              Room code <strong>{roomCode}</strong>
+            </span>
+            <ShareButton roomCode={roomCode} mode="share" />
+          </div>
+        ) : null}
+      </div>
     );
   } else if (finished && topPick) {
     stage = (
@@ -111,23 +144,28 @@ export function Room({
           <span>Open up price</span>
           <span>Widen distance</span>
         </div>
-        <button className="primary-button" onClick={onEditPreferences}>
-          Adjust filters
-        </button>
+        {onEditPreferences ? (
+          <button className="primary-button" onClick={onEditPreferences}>
+            Adjust filters
+          </button>
+        ) : null}
       </div>
     );
   }
 
   return (
     <div className="room-layout">
-      <section className="voting-stage">{stage}</section>
+      <section className="voting-stage">
+        {notice ? <p className="room-notice">{notice}</p> : null}
+        {stage}
+      </section>
 
       <aside className="room-sidebar">
         <div className="room-code">
           <div>
             <span>Room code</span>
             <strong>{roomCode}</strong>
-            <em>{roomModeLabel}</em>
+            <em>{roomLabel}</em>
           </div>
           <ShareButton roomCode={roomCode} mode="share" />
         </div>
@@ -138,11 +176,14 @@ export function Room({
             <div className="participant" key={participant.id}>
               <span style={{ background: participant.color }}>{participant.name.charAt(0)}</span>
               <div>
-                <strong>{participant.name}</strong>
+                <strong>
+                  {participant.name}
+                  {participant.id === meId && participants.length > 1 ? " (you)" : ""}
+                </strong>
                 <small>
-                  {participant.id === "you"
-                    ? `${reviewed}/${restaurants.length} reviewed`
-                    : "Votes in"}
+                  {reviewedBy(participant.id) >= restaurants.length && restaurants.length > 0
+                    ? "Done voting"
+                    : `${reviewedBy(participant.id)}/${restaurants.length} reviewed`}
                 </small>
               </div>
             </div>
@@ -162,9 +203,11 @@ export function Room({
                 ? "Live OpenStreetMap"
                 : "Demo restaurants"}
           </div>
-          <button className="secondary-button" onClick={onEditPreferences}>
-            Edit preferences
-          </button>
+          {onEditPreferences ? (
+            <button className="secondary-button" onClick={onEditPreferences}>
+              Edit preferences
+            </button>
+          ) : null}
         </div>
       </aside>
 

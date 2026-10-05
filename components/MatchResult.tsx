@@ -39,7 +39,8 @@ export function MatchResult({
   restaurant: Restaurant;
   votes: VoteMap;
   participants: Participant[];
-  onReset: () => void;
+  /** Omit to hide the "Vote again" button (live rooms keep their votes). */
+  onReset?: () => void;
   /** false when nobody agreed on everything and this is just the top pick */
   unanimous: boolean;
 }) {
@@ -99,9 +100,11 @@ export function MatchResult({
             Get directions
             <ExternalLink size={18} />
           </a>
-          <button className="secondary-button" onClick={onReset}>
-            Vote again
-          </button>
+          {onReset ? (
+            <button className="secondary-button" onClick={onReset}>
+              Vote again
+            </button>
+          ) : null}
         </div>
       </div>
     </div>
