@@ -3,10 +3,12 @@
 import { ExternalLink, Heart, MapPin, Star, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { DishArt } from "@/components/DishArt";
-import { FoodImage } from "@/components/FoodImage";
+import { PHOTO_TAP_EVENT, PhotoCarousel, type PhotoTapDetail } from "@/components/PhotoCarousel";
 import type { Restaurant, Vote } from "@/types/bitematch";
 
 const SWIPE_THRESHOLD = 110;
+/** A press that moves less than this is a tap (flip photo), not a drag. */
+const TAP_SLOP = 8;
 const EXIT_MS = 240;
 
 /**
@@ -25,7 +27,8 @@ export function SwipeDeck({
   const [dragX, setDragX] = useState(0);
   const [dragging, setDragging] = useState(false);
   const [exiting, setExiting] = useState<Vote | null>(null);
-  const start = useRef<{ x: number; y: number } | null>(null);
+  const start = useRef<{ x: number; y: number; target: Element } | null>(null);
+  const travelled = useRef(0);
 
   const commit = useCallback(
     (vote: Vote) => {
@@ -66,18 +69,35 @@ export function SwipeDeck({
           onDragStart={(event) => event.preventDefault()}
           onPointerDown={(event) => {
             if ((event.target as HTMLElement).closest("a, button")) return;
-            start.current = { x: event.clientX, y: event.clientY };
+            start.current = { x: event.clientX, y: event.clientY, target: event.target as Element };
+            travelled.current = 0;
             setDragging(true);
             event.currentTarget.setPointerCapture(event.pointerId);
           }}
           onPointerMove={(event) => {
             if (!start.current) return;
+            travelled.current = Math.max(
+              travelled.current,
+              Math.hypot(event.clientX - start.current.x, event.clientY - start.current.y)
+            );
             setDragX(event.clientX - start.current.x);
           }}
-          onPointerUp={() => {
+          onPointerUp={(event) => {
             if (!start.current) return;
+            const pressedOn = start.current.target;
             start.current = null;
             setDragging(false);
+            if (travelled.current < TAP_SLOP) {
+              // A tap on the photo flips it: right half = next, left half = previous.
+              const carousel = pressedOn.closest("[data-photo-carousel]");
+              if (carousel) {
+                const box = carousel.getBoundingClientRect();
+                const side = event.clientX < box.left + box.width / 2 ? "prev" : "next";
+                carousel.dispatchEvent(new CustomEvent<PhotoTapDetail>(PHOTO_TAP_EVENT, { detail: { side } }));
+              }
+              setDragX(0);
+              return;
+            }
             if (dragX > SWIPE_THRESHOLD) commit("like");
             else if (dragX < -SWIPE_THRESHOLD) commit("pass");
             else setDragX(0);
@@ -108,7 +128,11 @@ export function SwipeDeck({
           Like
         </button>
       </div>
-      <p className="swipe-tip">Drag the card, or use ← → keys</p>
+      <p className="swipe-tip">
+        {restaurant.source === "google" && restaurant.menuImages.length > 1
+          ? "Tap the photo to see more · drag the card to vote"
+          : "Drag the card, or use ← → keys"}
+      </p>
     </div>
   );
 }
@@ -117,7 +141,11 @@ function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
   return (
     <article className="restaurant-card">
       <div className="restaurant-art">
-        <DishArt restaurant={restaurant} sizes="(max-width: 900px) 92vw, 560px" />
+        {restaurant.source === "google" && restaurant.menuImages.length > 0 ? (
+          <PhotoCarousel restaurant={restaurant} sizes="(max-width: 900px) 92vw, 560px" />
+        ) : (
+          <DishArt restaurant={restaurant} sizes="(max-width: 900px) 92vw, 560px" />
+        )}
         <span className="price-sticker">{restaurant.price}</span>
       </div>
       <div className="restaurant-content">
@@ -145,21 +173,6 @@ function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
             </span>
           ))}
         </div>
-        {restaurant.source === "google" && restaurant.menuImages.length > 0 ? (
-          <div className="menu-preview" aria-label={`${restaurant.name} menu photos`}>
-            {restaurant.menuImages.map((photo) => (
-              <div className="menu-photo" key={photo.src}>
-                <FoodImage
-                  src={photo.src}
-                  alt={photo.alt}
-                  cuisine={restaurant.cuisine}
-                  unoptimized={restaurant.source === "google"}
-                  sizes="130px"
-                />
-              </div>
-            ))}
-          </div>
-        ) : null}
         <a
           className="map-link"
           href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(

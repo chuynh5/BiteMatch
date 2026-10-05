@@ -26,7 +26,7 @@ BiteMatch can use real nearby restaurant listings without a paid API key.
 - OpenStreetMap provides real names, locations, cuisine tags when available, and address data when mapped.
 - It does not provide official restaurant photos, ratings, or price levels, so the UI uses safe fallback imagery and inferred metadata.
 
-Google Places API is optional if you want richer official data later:
+Google Places API is optional. With a key, rooms created with **Use my location** show each restaurant's own photos (up to 5, tap to flip) with photographer credits:
 
 1. Copy `.env.example` to `.env.local`.
 2. Add a Google Places API key.

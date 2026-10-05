@@ -2637,3 +2637,137 @@ a.brand {
   margin: 14px auto;
   max-width: calc(100% - 28px);
 }
+
+/* ---------- Real restaurant photos ---------------------------------- */
+
+.photo-carousel {
+  background: var(--blush);
+  inset: 0;
+  overflow: hidden;
+  position: absolute;
+}
+
+.photo-carousel img {
+  object-fit: cover;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Soft shade at the top so the progress bars read on any photo. */
+.photo-carousel::before {
+  background: linear-gradient(rgba(0, 0, 0, 0.32), transparent);
+  content: "";
+  height: 56px;
+  inset: 0 0 auto;
+  pointer-events: none;
+  position: absolute;
+  z-index: 1;
+}
+
+.photo-bars {
+  display: flex;
+  gap: 4px;
+  left: 12px;
+  pointer-events: none;
+  position: absolute;
+  right: 12px;
+  top: 10px;
+  z-index: 2;
+}
+
+.photo-bars span {
+  background: rgba(255, 255, 255, 0.45);
+  border-radius: 999px;
+  flex: 1;
+  height: 3px;
+}
+
+.photo-bars span.filled {
+  background: white;
+}
+
+.photo-nav {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.88);
+  border: 0;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  color: var(--ink);
+  display: flex;
+  height: 32px;
+  justify-content: center;
+  opacity: 0;
+  padding: 0;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: opacity 160ms ease;
+  width: 32px;
+  z-index: 2;
+}
+
+.photo-nav-prev {
+  left: 10px;
+}
+
+.photo-nav-next {
+  right: 10px;
+}
+
+.photo-carousel:hover .photo-nav:not(:disabled),
+.photo-nav:focus-visible {
+  opacity: 1;
+}
+
+.photo-nav:disabled {
+  cursor: default;
+}
+
+.photo-credit {
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 999px;
+  bottom: 12px;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  left: 12px;
+  max-width: 60%;
+  overflow: hidden;
+  padding: 3px 9px;
+  position: absolute;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  z-index: 2;
+}
+
+.price-sticker {
+  z-index: 3;
+}
+
+.sr-only {
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+/* Photos deserve a little more room than illustrations. */
+.restaurant-art:has(.photo-carousel) {
+  height: clamp(220px, 24vw, 280px);
+}
+
+@media (max-width: 720px) {
+  .restaurant-art:has(.photo-carousel) {
+    height: 210px;
+  }
+}
+
+@media (max-width: 720px) and (max-height: 700px) {
+  .restaurant-art:has(.photo-carousel) {
+    height: 150px;
+  }
+}
