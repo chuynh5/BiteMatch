@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { tryUseQuota } from "@/lib/usageCap";
 
 /**
  * Serves one Google Places photo.
@@ -16,6 +17,15 @@ export async function GET(request: NextRequest) {
 
   if (!apiKey || !name || !/^places\/[^/]+\/photos\/[^/]+$/.test(name)) {
     return new NextResponse("Photo unavailable", { status: 404 });
+  }
+
+  // Daily cap, so we never go past Google's free allowance. Only cache misses
+  // reach this point; repeat views are served from the CDN for free.
+  if (!(await tryUseQuota("google_photo"))) {
+    return new NextResponse("Daily photo limit reached", {
+      status: 429,
+      headers: { "Cache-Control": "no-store" }
+    });
   }
 
   try {
