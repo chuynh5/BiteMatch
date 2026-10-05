@@ -65,14 +65,14 @@ How it works:
 
 ## Keeping Google at $0
 
-Google Places is billed per request, with a free monthly allowance. BiteMatch caps its own usage per day so it never goes past that:
+Google Places is billed per request, with a free monthly allowance. BiteMatch caps its own usage per month so it never goes past that:
 
-- **Photos:** 30 new photo loads a day (Google gives 1,000 free a month). Each photo is cached for a day, so friends in the same room share one load.
-- **Nearby searches:** 100 a day (5,000 free a month). After that, rooms use OpenStreetMap for the rest of the day.
+- **Photos:** 950 new photo loads a month (Google gives 1,000 free). Each photo is cached for a day, so friends in the same room share one load.
+- **Nearby searches:** 4,500 a month (5,000 free). Google also limits this to 100 a day. After that, rooms use OpenStreetMap.
 
-The counter lives in Supabase. Run `supabase/usage-cap.sql` once in the SQL Editor to set it up. Without it, the app makes no Google requests at all and shows illustrations instead.
+The counter lives in Supabase. Run `supabase/usage-cap.sql` in the SQL Editor to set it up (safe to re-run). Without it, the app makes no Google requests at all and shows illustrations instead.
 
-To see today's usage, run `select * from api_usage order by day desc, kind;` in the SQL Editor. The limits are in `lib/usageCap.ts`.
+To see usage, run `select * from api_usage order by day desc, kind;` in the SQL Editor. Monthly rows end in `_month`. The limits are in `lib/usageCap.ts`.
 
 ## Product Scope
 

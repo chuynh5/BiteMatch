@@ -153,7 +153,8 @@ function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
           <span className="restaurant-meta">{restaurant.cuisine}</span>
           <h3>{restaurant.name}</h3>
         </div>
-        <p>{restaurant.vibe}</p>
+        {/* Live listings only have a generic sentence here, so skip it and give the photo the room. */}
+        {restaurant.source === "google" ? null : <p>{restaurant.vibe}</p>}
         <div className="detail-grid">
           <span>
             <MapPin size={15} />

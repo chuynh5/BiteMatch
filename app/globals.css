@@ -2771,3 +2771,40 @@ a.brand {
     height: 150px;
   }
 }
+
+/* ---------- Show the whole photo -------------------------------------- */
+
+/* Most restaurant photos are 4:3. Size the art box to that shape so the
+   photo fits uncropped; portrait or odd-shaped photos get a soft blurred
+   fill around them instead of empty bars. */
+.photo-carousel img.photo-main {
+  object-fit: contain;
+}
+
+.photo-carousel img.photo-backdrop {
+  filter: blur(18px) saturate(1.1);
+  object-fit: cover;
+  opacity: 0.85;
+  transform: scale(1.15);
+}
+
+.restaurant-art:has(.photo-carousel) {
+  aspect-ratio: 4 / 3;
+  height: auto;
+  max-height: min(300px, 34vh);
+  width: 100%;
+}
+
+@media (max-width: 720px) {
+  .restaurant-art:has(.photo-carousel) {
+    height: auto;
+    max-height: 44vh;
+  }
+}
+
+@media (max-width: 720px) and (max-height: 700px) {
+  .restaurant-art:has(.photo-carousel) {
+    height: auto;
+    max-height: 34vh;
+  }
+}

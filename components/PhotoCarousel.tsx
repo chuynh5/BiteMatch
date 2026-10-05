@@ -43,8 +43,21 @@ export function PhotoCarousel({ restaurant, sizes }: { restaurant: Restaurant; s
 
   return (
     <div className="photo-carousel" data-photo-carousel ref={rootRef}>
+      {/* The same photo, blurred, fills any space around the uncropped one. */}
+      <Image
+        key={`${photo.src}-backdrop`}
+        className="photo-backdrop"
+        src={photo.src}
+        alt=""
+        aria-hidden="true"
+        fill
+        unoptimized
+        sizes={sizes}
+        draggable={false}
+      />
       <Image
         key={photo.src}
+        className="photo-main"
         src={photo.src}
         alt={photo.alt}
         fill
