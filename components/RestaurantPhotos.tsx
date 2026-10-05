@@ -27,7 +27,7 @@ export function RestaurantPhotos({
   }
 
   if (status === "none") {
-    return <DishArt restaurant={{ ...restaurant, source: "curated" }} sizes={sizes} />;
+    return <DishArt restaurant={restaurant} sizes={sizes} />;
   }
 
   return <PhotoCarousel restaurant={{ ...restaurant, menuImages: photos }} sizes={sizes} tapToFlip={tapToFlip} />;

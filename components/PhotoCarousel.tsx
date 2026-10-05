@@ -47,7 +47,7 @@ export function PhotoCarousel({
   }, [photos.length]);
 
   if (!photo) {
-    return <DishArt restaurant={{ ...restaurant, source: "curated" }} sizes={sizes} />;
+    return <DishArt restaurant={restaurant} sizes={sizes} />;
   }
 
   return (

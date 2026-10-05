@@ -1,6 +1,9 @@
 /* ==========================================================================
-   BiteMatch — cozy, cute theme
-   Pastel cream background, coral accents, hand-drawn dish illustrations.
+   BiteMatch — cozy,
+cute theme
+   Pastel cream background,
+coral accents,
+hand-drawn dish illustrations.
    ========================================================================== */
 
 :root {
@@ -450,7 +453,11 @@ h3 {
   position: relative;
 }
 
-.custom-phone-screen > :is(.phone-status, .prototype-stage, .phone-vote-row, .prototype-progress, .swipe-hint) {
+.custom-phone-screen > :is(.phone-status,
+.prototype-stage,
+.phone-vote-row,
+.prototype-progress,
+.swipe-hint) {
   justify-self: center;
   width: 100%;
 }
@@ -764,62 +771,120 @@ h3 {
 }
 
 @keyframes swipe-choice-one {
-  0%, 7% { opacity: 1; transform: translateX(0) rotate(0deg) scale(1); }
-  17%, 100% { opacity: 0; transform: translateX(112%) rotate(17deg) scale(0.94); }
+  0%,
+7% { opacity: 1; transform: translateX(0) rotate(0deg) scale(1); }
+  17%,
+100% { opacity: 0; transform: translateX(112%) rotate(17deg) scale(0.94); }
 }
 
 @keyframes swipe-choice-two {
-  0%, 17% { opacity: 0; transform: translateY(12px) scale(0.94); }
-  22%, 27% { opacity: 1; transform: translateX(0) rotate(0deg) scale(1); }
-  37%, 100% { opacity: 0; transform: translateX(-112%) rotate(-17deg) scale(0.94); }
+  0%,
+17% { opacity: 0; transform: translateY(12px) scale(0.94); }
+  22%,
+27% { opacity: 1; transform: translateX(0) rotate(0deg) scale(1); }
+  37%,
+100% { opacity: 0; transform: translateX(-112%) rotate(-17deg) scale(0.94); }
 }
 
 @keyframes swipe-choice-three {
-  0%, 37% { opacity: 0; transform: translateY(12px) scale(0.94); }
-  42%, 47% { opacity: 1; transform: translateX(0) rotate(0deg) scale(1); }
-  57%, 100% { opacity: 0; transform: translateX(112%) rotate(17deg) scale(0.94); }
+  0%,
+37% { opacity: 0; transform: translateY(12px) scale(0.94); }
+  42%,
+47% { opacity: 1; transform: translateX(0) rotate(0deg) scale(1); }
+  57%,
+100% { opacity: 0; transform: translateX(112%) rotate(17deg) scale(0.94); }
 }
 
 @keyframes swipe-choice-four {
-  0%, 57% { opacity: 0; transform: translateY(12px) scale(0.94); }
-  62%, 67% { opacity: 1; transform: translateX(0) rotate(0deg) scale(1); }
-  77%, 100% { opacity: 0; transform: translateX(-112%) rotate(-17deg) scale(0.94); }
+  0%,
+57% { opacity: 0; transform: translateY(12px) scale(0.94); }
+  62%,
+67% { opacity: 1; transform: translateX(0) rotate(0deg) scale(1); }
+  77%,
+100% { opacity: 0; transform: translateX(-112%) rotate(-17deg) scale(0.94); }
 }
 
 @keyframes swipe-choice-five {
-  0%, 77% { opacity: 0; transform: translateY(12px) scale(0.94); }
-  82%, 87% { opacity: 1; transform: translateX(0) rotate(0deg) scale(1); }
-  97%, 100% { opacity: 0; transform: translateX(112%) rotate(17deg) scale(0.94); }
+  0%,
+77% { opacity: 0; transform: translateY(12px) scale(0.94); }
+  82%,
+87% { opacity: 1; transform: translateX(0) rotate(0deg) scale(1); }
+  97%,
+100% { opacity: 0; transform: translateX(112%) rotate(17deg) scale(0.94); }
 }
 
 @keyframes like-stamp {
-  0%, 8%, 18%, 48%, 58%, 88%, 100% { opacity: 0; }
-  11%, 14%, 51%, 54%, 91%, 94% { opacity: 1; }
+  0%,
+8%,
+18%,
+48%,
+58%,
+88%,
+100% { opacity: 0; }
+  11%,
+14%,
+51%,
+54%,
+91%,
+94% { opacity: 1; }
 }
 
 @keyframes pass-stamp {
-  0%, 28%, 38%, 68%, 78%, 100% { opacity: 0; }
-  31%, 34%, 71%, 74% { opacity: 1; }
+  0%,
+28%,
+38%,
+68%,
+78%,
+100% { opacity: 0; }
+  31%,
+34%,
+71%,
+74% { opacity: 1; }
 }
 
 @keyframes like-button-press {
-  0%, 8%, 18%, 48%, 58%, 88%, 98%, 100% { background: white; color: var(--coral); transform: scale(1); }
-  11%, 14%, 51%, 54%, 91%, 94% { background: var(--coral); color: white; transform: scale(0.94); }
+  0%,
+8%,
+18%,
+48%,
+58%,
+88%,
+98%,
+100% { background: white; color: var(--coral); transform: scale(1); }
+  11%,
+14%,
+51%,
+54%,
+91%,
+94% { background: var(--coral); color: white; transform: scale(0.94); }
 }
 
 @keyframes pass-button-press {
-  0%, 28%, 38%, 68%, 78%, 100% { background: white; color: var(--muted); transform: scale(1); }
-  31%, 34%, 71%, 74% { background: var(--ink); color: white; transform: scale(0.94); }
+  0%,
+28%,
+38%,
+68%,
+78%,
+100% { background: white; color: var(--muted); transform: scale(1); }
+  31%,
+34%,
+71%,
+74% { background: var(--ink); color: white; transform: scale(0.94); }
 }
 
 @keyframes progress-pulse {
-  0%, 25%, 100% { background: rgba(224, 103, 90, 0.2); }
+  0%,
+25%,
+100% { background: rgba(224, 103, 90, 0.2); }
   10% { background: var(--coral); }
 }
 
 @keyframes prototype-match-pop {
-  0%, 89%, 100% { opacity: 0; transform: translate(-50%, -44%) scale(0.92); }
-  92%, 98.5% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  0%,
+89%,
+100% { opacity: 0; transform: translate(-50%, -44%) scale(0.92); }
+  92%,
+98.5% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 }
 
 /* ---------- Dish art --------------------------------------------------- */
@@ -886,29 +951,15 @@ h3 {
   font-weight: 700;
 }
 
-.food-fallback {
-  align-items: center;
-  color: rgba(255, 255, 255, 0.92);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  inset: 0;
-  justify-content: center;
-  position: absolute;
-}
-
-.food-fallback span {
-  font-size: 0.94rem;
-  font-weight: 700;
-}
-
 @keyframes bob {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
+  0%,
+100% { transform: translateY(0) rotate(0deg); }
   50% { transform: translateY(-6px) rotate(-1deg); }
 }
 
 @keyframes twinkle {
-  0%, 100% { opacity: 0.25; transform: scale(0.8); }
+  0%,
+100% { opacity: 0.25; transform: scale(0.8); }
   50% { opacity: 0.9; transform: scale(1.1); }
 }
 
@@ -1086,8 +1137,7 @@ h3 {
   width: 100%;
 }
 
-.location-box,
-.room-link {
+.location-box {
   align-items: center;
   background: white;
   border: 2px solid var(--line);
@@ -1099,13 +1149,7 @@ h3 {
   padding: 14px 16px;
 }
 
-.room-link {
-  border-style: dashed;
-  margin-bottom: 22px;
-}
-
 .location-box span,
-.room-link span,
 .room-code span,
 .preference-summary > span {
   color: var(--coral-deep);
@@ -1120,10 +1164,6 @@ h3 {
   font-size: 0.86rem;
   line-height: 1.45;
   margin: 0;
-}
-
-.room-link strong {
-  font-size: 1.05rem;
 }
 
 /* ---------- Room ------------------------------------------------------- */
@@ -1333,23 +1373,6 @@ h3 {
 
 .detail-grid span.tag:nth-of-type(4n + 1) {
   background: var(--blush);
-}
-
-.menu-preview {
-  display: grid;
-  gap: 8px;
-  grid-template-columns: repeat(3, 1fr);
-}
-
-.menu-photo {
-  aspect-ratio: 1;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  position: relative;
-}
-
-.menu-photo img {
-  object-fit: cover;
 }
 
 .map-link {
@@ -1787,71 +1810,6 @@ h3 {
   100% { opacity: 1; transform: scale(1); }
 }
 
-/* ---------- Phone preview page (/phone-preview) ---------------------- */
-
-.phone-preview-page {
-  align-items: center;
-  display: grid;
-  gap: 42px;
-  grid-template-columns: minmax(240px, 0.8fr) auto;
-  justify-content: center;
-  min-height: 100vh;
-  padding: 36px;
-}
-
-.phone-preview-copy {
-  max-width: 360px;
-}
-
-.phone-preview-copy span {
-  color: var(--coral-deep);
-  font-size: 0.94rem;
-  font-weight: 700;
-}
-
-.phone-preview-copy h1 {
-  font-size: clamp(3rem, 6vw, 4.6rem);
-  line-height: 0.95;
-  margin: 10px 0;
-}
-
-.phone-preview-copy p {
-  color: var(--muted);
-  line-height: 1.55;
-  margin: 0;
-}
-
-.phone-preview-shell {
-  background: var(--ink);
-  border-radius: 54px;
-  box-shadow: var(--shadow-card);
-  height: min(844px, calc(100vh - 72px));
-  overflow: hidden;
-  padding: 12px;
-  position: relative;
-  width: 414px;
-}
-
-.phone-preview-notch {
-  background: var(--ink);
-  border-radius: 999px;
-  height: 26px;
-  left: 50%;
-  position: absolute;
-  top: 18px;
-  transform: translateX(-50%);
-  width: 110px;
-  z-index: 2;
-}
-
-.phone-preview-frame {
-  background: var(--bg);
-  border: 0;
-  border-radius: 42px;
-  height: 100%;
-  width: 100%;
-}
-
 /* ---------- Responsive ------------------------------------------------- */
 
 @media (max-width: 1080px) {
@@ -1863,28 +1821,19 @@ h3 {
   }
 
   .room-sidebar,
-  .results-panel {
+.results-panel {
     position: static;
   }
 }
 
 @media (max-width: 900px) {
   .landing,
-  .setup-grid {
+.setup-grid {
     grid-template-columns: 1fr;
   }
 
   .landing {
     min-height: 0;
-  }
-
-  .phone-preview-page {
-    grid-template-columns: 1fr;
-    justify-items: center;
-  }
-
-  .phone-preview-copy {
-    text-align: center;
   }
 }
 
@@ -1932,8 +1881,8 @@ h3 {
   }
 
   .setup-panel,
-  .room-sidebar,
-  .results-panel {
+.room-sidebar,
+.results-panel {
     border-radius: 26px;
     padding: 20px;
   }
@@ -1968,7 +1917,7 @@ h3 {
   }
 
   .pass-button,
-  .like-button {
+.like-button {
     min-width: 0;
   }
 
@@ -1991,8 +1940,8 @@ h3 {
 
 @media (prefers-reduced-motion: reduce) {
   *,
-  *::before,
-  *::after {
+*::before,
+*::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -2002,8 +1951,8 @@ h3 {
 @media (prefers-reduced-motion: reduce) {
   /* Keep the homepage phone showing a card instead of animating through them. */
   .prototype-card,
-  .swipe-stamp,
-  .prototype-match-pop {
+.swipe-stamp,
+.prototype-match-pop {
     animation: none !important;
   }
 
@@ -2019,11 +1968,9 @@ h3 {
 .restaurant-meta,
 .home-join label,
 .location-box span,
-.room-link span,
 .room-code span,
 .preference-summary > span,
-.availability-note strong,
-.phone-preview-copy span {
+.availability-note strong {
   font-size: 0.76rem;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -2169,7 +2116,7 @@ h3 {
   }
 
   .chip,
-  .segmented-control button {
+.segmented-control button {
     font-size: 0.86rem;
     min-height: 36px;
     padding: 0 12px;
@@ -2179,8 +2126,7 @@ h3 {
     gap: 6px;
   }
 
-  .location-box,
-  .room-link {
+  .location-box {
     gap: 10px;
     margin-top: 16px;
     padding: 12px;
@@ -2198,10 +2144,6 @@ h3 {
     font-size: 0.85rem;
     min-height: 38px;
     padding: 0 12px;
-  }
-
-  .room-link {
-    margin-bottom: 16px;
   }
 
   /* Room: voting card */
@@ -2249,7 +2191,7 @@ h3 {
   }
 
   .pass-button,
-  .like-button {
+.like-button {
     min-height: 52px;
   }
 
@@ -2295,7 +2237,8 @@ h3 {
     font-size: 0.72rem;
   }
 
-  /* Room: crew as a row of avatars, filters tucked below */
+  /* Room: crew as a row of avatars,
+filters tucked below */
   .room-sidebar {
     padding: 16px;
   }
@@ -2351,7 +2294,7 @@ h3 {
   }
 
   .preference-summary > span,
-  .preference-summary p {
+.preference-summary p {
     grid-column: 1;
   }
 
@@ -2474,7 +2417,7 @@ h3 {
   }
 
   .pass-button,
-  .like-button {
+.like-button {
     min-height: 46px;
   }
 }
@@ -2597,7 +2540,9 @@ a.brand {
 }
 
 @keyframes waiting-bounce {
-  0%, 60%, 100% { transform: translateY(0); }
+  0%,
+60%,
+100% { transform: translateY(0); }
   30% { transform: translateY(-10px); }
 }
 
