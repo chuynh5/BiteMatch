@@ -2042,3 +2042,357 @@ h3 {
   font-size: 0.72rem;
   padding: 3px 9px;
 }
+
+/* ---------- Compact phone layout ------------------------------------
+   On small screens, keep each step close to one screen tall. */
+
+@media (max-width: 720px) {
+  /* Landing */
+  .landing {
+    gap: 8px;
+  }
+
+  .hero-copy h1 {
+    margin: 10px 0 12px;
+  }
+
+  .hero-copy > p {
+    font-size: 0.95rem;
+    line-height: 1.55;
+  }
+
+  .hero-actions {
+    margin-top: 18px;
+  }
+
+  .large {
+    min-height: 48px;
+  }
+
+  .home-join {
+    gap: 8px;
+    margin-top: 14px;
+    padding: 10px 12px;
+  }
+
+  .text-input {
+    min-height: 44px;
+  }
+
+  .home-join-row .secondary-button {
+    min-height: 44px;
+  }
+
+  .metric-strip {
+    flex-wrap: nowrap;
+    gap: 6px;
+    margin-top: 14px;
+  }
+
+  .metric-strip span {
+    flex: 1;
+    font-size: 0.72rem;
+    gap: 4px;
+    justify-content: center;
+    padding: 6px 4px;
+    white-space: nowrap;
+  }
+
+  .metric-strip svg {
+    height: 13px;
+    width: 13px;
+  }
+
+  .hero-visual {
+    padding: 4px 0 0;
+  }
+
+  .custom-phone-mockup {
+    border-radius: 38px;
+    padding: 7px;
+    width: 236px;
+  }
+
+  .custom-phone-screen {
+    border-width: 4px;
+    border-radius: 31px;
+    gap: 7px;
+    min-height: 0;
+    padding: 46px 12px 10px;
+  }
+
+  .custom-phone-notch {
+    height: 15px;
+    top: 9px;
+    width: 58px;
+  }
+
+  .phone-system-status {
+    font-size: 0.56rem;
+    left: 22px;
+    right: 20px;
+    top: 11px;
+  }
+
+  .phone-card-copy strong {
+    font-size: 1.05rem;
+  }
+
+  .phone-vote-row span {
+    height: 30px;
+  }
+
+  .swipe-hint {
+    font-size: 0.66rem;
+  }
+
+  /* Setup */
+  .setup-grid {
+    gap: 12px;
+  }
+
+  .setup-panel h2 {
+    font-size: 1.7rem;
+    margin: 8px 0 4px;
+  }
+
+  .intro-panel > p {
+    font-size: 0.92rem;
+    margin-bottom: 14px;
+  }
+
+  .setup-steps {
+    display: none;
+  }
+
+  .control-block {
+    margin-top: 16px;
+  }
+
+  .chip,
+  .segmented-control button {
+    font-size: 0.86rem;
+    min-height: 36px;
+    padding: 0 12px;
+  }
+
+  .chip-grid {
+    gap: 6px;
+  }
+
+  .location-box,
+  .room-link {
+    gap: 10px;
+    margin-top: 16px;
+    padding: 12px;
+  }
+
+  .location-box {
+    grid-template-columns: 1fr auto;
+  }
+
+  .location-box p {
+    display: none;
+  }
+
+  .location-box .secondary-button {
+    font-size: 0.85rem;
+    min-height: 38px;
+    padding: 0 12px;
+  }
+
+  .room-link {
+    margin-bottom: 16px;
+  }
+
+  /* Room: voting card */
+  .stage-heading h2 {
+    font-size: 1.35rem;
+  }
+
+  .progress-bar {
+    margin: 8px auto 12px;
+  }
+
+  .restaurant-art {
+    height: 170px;
+  }
+
+  .restaurant-content {
+    gap: 9px;
+    padding: 14px 16px 14px;
+  }
+
+  .restaurant-content h3 {
+    font-size: 1.7rem;
+  }
+
+  .restaurant-content p {
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    display: -webkit-box;
+    font-size: 0.9rem;
+    overflow: hidden;
+  }
+
+  .detail-grid span {
+    font-size: 0.78rem;
+    padding: 5px 9px;
+  }
+
+  .map-link {
+    font-size: 0.82rem;
+    padding-top: 9px;
+  }
+
+  .vote-actions {
+    margin-top: 12px;
+  }
+
+  .pass-button,
+  .like-button {
+    min-height: 52px;
+  }
+
+  .swipe-tip {
+    display: none;
+  }
+
+  /* Room: group pulse as compact one-line rows */
+  .results-panel {
+    padding: 16px;
+  }
+
+  .results-panel h2 {
+    font-size: 1.1rem;
+    margin-bottom: 2px;
+  }
+
+  .results-hint {
+    font-size: 0.82rem;
+    margin: 0 0 10px;
+  }
+
+  .results-list {
+    gap: 6px;
+  }
+
+  .result-row {
+    align-items: center;
+    gap: 10px;
+    grid-template-columns: minmax(0, 1fr) 72px 64px;
+    padding: 8px 10px;
+  }
+
+  .result-row span {
+    display: none;
+  }
+
+  .result-row small {
+    text-align: right;
+  }
+
+  .result-row.locked small {
+    font-size: 0.72rem;
+  }
+
+  /* Room: crew as a row of avatars, filters tucked below */
+  .room-sidebar {
+    padding: 16px;
+  }
+
+  .room-code {
+    padding: 10px 14px;
+  }
+
+  .room-code strong {
+    font-size: 1.6rem;
+  }
+
+  .participant-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 4px;
+  }
+
+  .participant-list h2 {
+    font-size: 1.1rem;
+    margin: 14px 0 4px;
+    width: 100%;
+  }
+
+  .participant {
+    align-items: center;
+    flex-direction: column;
+    gap: 3px;
+    padding: 0;
+    text-align: center;
+    width: 58px;
+  }
+
+  .participant strong {
+    font-size: 0.78rem;
+    max-width: 58px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .participant small {
+    display: none;
+  }
+
+  .preference-summary {
+    align-items: center;
+    display: grid;
+    gap: 4px 10px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    margin-top: 12px;
+    padding-top: 12px;
+  }
+
+  .preference-summary > span,
+  .preference-summary p {
+    grid-column: 1;
+  }
+
+  .preference-summary p {
+    font-size: 0.82rem;
+    margin: 0;
+  }
+
+  .preference-summary .source-pill {
+    display: none;
+  }
+
+  .preference-summary .secondary-button {
+    font-size: 0.85rem;
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    min-height: 38px;
+    padding: 0 14px;
+    width: auto;
+  }
+
+  /* Match */
+  .match-photo {
+    min-height: 150px;
+  }
+
+  .match-copy {
+    gap: 9px;
+    padding: 18px 18px 20px;
+  }
+
+  .celebration-icon {
+    display: none;
+  }
+
+  .match-copy h2 {
+    font-size: 1.9rem;
+  }
+
+  .match-copy p {
+    font-size: 0.92rem;
+  }
+}

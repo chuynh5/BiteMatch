@@ -190,7 +190,7 @@ export function Room({
                   />
                 </div>
                 <small>
-                  {revealed ? `${stats.likes}/${participants.length} yes` : "Vote to reveal"}
+                  {revealed ? `${stats.likes}/${participants.length} yes` : "Hidden"}
                 </small>
               </div>
             );
