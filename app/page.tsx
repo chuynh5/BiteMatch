@@ -1,12 +1,14 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Landing, type JoinNotice } from "@/components/Landing";
 import { Room, type RoomMode } from "@/components/Room";
 import { Setup, type LocationStatus } from "@/components/Setup";
 import { restaurants } from "@/data/restaurants";
 import { createFriendVotes } from "@/lib/demoVotes";
+import { getRoomStore, myIdentity } from "@/lib/rooms";
 import { filterRestaurants, getMatch, getTopPick } from "@/lib/matching";
 import type {
   Cuisine,
@@ -26,19 +28,15 @@ const demoParticipants: Participant[] = [
   { id: "sam", name: "Sam", color: "#8b6fc9" }
 ];
 
-const createdParticipants: Participant[] = [
-  { id: "you", name: "You", color: "#211c18" },
-  { id: "nina", name: "Nina", color: "#d97863" },
-  { id: "leo", name: "Leo", color: "#6e9b8e" },
-  { id: "ari", name: "Ari", color: "#d9a441" },
-  { id: "tess", name: "Tess", color: "#8b6fc9" }
-];
-
 const demoRoomCode = "4827";
-const createdRoomCode = "7392";
 const metersPerMile = 1609.34;
 
 export default function Home() {
+  const router = useRouter();
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+  /** Setup is used both to create a real room and to tweak the demo room's filters. */
+  const [setupFor, setSetupFor] = useState<"new-room" | "demo">("new-room");
   const [step, setStep] = useState<"landing" | "setup" | "room">("landing");
   const [name, setName] = useState("Cara");
   const [joinCode, setJoinCode] = useState("");
@@ -62,10 +60,10 @@ export default function Home() {
     "Use your location for live nearby listings. Add Google Places later for official photos and ratings."
   );
 
-  const participants = useMemo(() => {
-    const roomParticipants = roomMode === "created" ? createdParticipants : demoParticipants;
-    return [{ ...roomParticipants[0], name: name.trim() || "You" }, ...roomParticipants.slice(1)];
-  }, [name, roomMode]);
+  const participants = useMemo(
+    () => [{ ...demoParticipants[0], name: name.trim() || "You" }, ...demoParticipants.slice(1)],
+    [name]
+  );
 
   const participantIds = useMemo(() => participants.map((participant) => participant.id), [participants]);
 
@@ -126,14 +124,42 @@ export default function Home() {
     window.scrollTo({ top: 0 });
   }, [step]);
 
-  // Invite links look like /?room=4827. Pre-fill the join box from them.
+  // Old-style invite links look like /?room=1234. Real rooms live at /room?code=1234.
   useEffect(() => {
-    const room = new URLSearchParams(window.location.search).get("room");
-    if (room) {
+    const room = (new URLSearchParams(window.location.search).get("room") ?? "").replace(/\D/g, "").slice(0, 4);
+    if (room.length === 4 && room !== demoRoomCode) {
+      router.replace(`/room?code=${room}`);
+    } else if (room) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time read of the URL on load
-      setJoinCode(room.replace(/\D/g, "").slice(0, 4));
+      setJoinCode(room);
     }
-  }, []);
+  }, [router]);
+
+  async function createRealRoom() {
+    const hostName = name.trim();
+    if (!hostName) {
+      setCreateError("Add your display name first so friends know whose room it is.");
+      return;
+    }
+    if (filteredRestaurants.length === 0) {
+      setCreateError("No restaurants match these filters yet. Loosen them a little before creating the room.");
+      return;
+    }
+    setCreating(true);
+    setCreateError(null);
+    try {
+      const { code, me } = await getRoomStore().createRoom({
+        hostName,
+        preferences,
+        restaurants: filteredRestaurants
+      });
+      myIdentity.set(code, me.id);
+      router.push(`/room?code=${code}`);
+    } catch {
+      setCreateError("Couldn't create the room. Check your connection and try again.");
+      setCreating(false);
+    }
+  }
 
   function resetVotes() {
     setVotes({});
@@ -188,16 +214,14 @@ export default function Home() {
       return;
     }
 
+    setJoinNotice(null);
     if (normalizedCode === demoRoomCode) {
-      setJoinNotice(null);
       enterRoom(demoRoomCode, "joined");
       return;
     }
 
-    setJoinNotice({
-      title: "Room not found",
-      message: `Room ${normalizedCode} does not exist in this demo. Try ${demoRoomCode} to join the sample dinner room.`
-    });
+    // Real room: the room page checks the code and asks for your name.
+    router.push(`/room?code=${normalizedCode}`);
   }
 
   async function loadNearbyRestaurants() {
@@ -261,7 +285,13 @@ export default function Home() {
           </button>
           {step === "landing" ? (
             <div className="nav-actions">
-              <button className="primary-button" onClick={() => setStep("setup")}>
+              <button
+                className="primary-button"
+                onClick={() => {
+                  setSetupFor("new-room");
+                  setStep("setup");
+                }}
+              >
                 Start Matching
                 <ArrowRight size={18} />
               </button>
@@ -271,7 +301,10 @@ export default function Home() {
 
         {step === "landing" && (
           <Landing
-            onCreate={() => setStep("setup")}
+            onCreate={() => {
+              setSetupFor("new-room");
+              setStep("setup");
+            }}
             onDemo={() => enterRoom(demoRoomCode, "demo")}
             joinCode={joinCode}
             setJoinCode={(code) => {
@@ -300,27 +333,32 @@ export default function Home() {
             locationMessage={locationMessage}
             isPlacesConfigured={isPlacesConfigured}
             restaurantOptions={restaurantOptions}
-            roomCode={createdRoomCode}
-            onEnterRoom={() => enterRoom(createdRoomCode, "created")}
+            submitLabel={setupFor === "demo" ? "Back to the demo room" : creating ? "Creating room…" : "Create room"}
+            submitting={creating}
+            submitError={setupFor === "new-room" ? createError : null}
+            onSubmit={setupFor === "demo" ? () => enterRoom(currentRoomCode, roomMode) : createRealRoom}
           />
         )}
 
         {step === "room" && (
           <Room
+            meId="you"
             participants={participants}
             preferences={preferences}
             restaurants={filteredRestaurants}
             activeIndex={activeIndex}
-            votes={votes}
             roomVotes={roomVotes}
             match={match}
             topPick={topPick}
             roomCode={currentRoomCode}
-            roomMode={roomMode}
+            roomLabel={roomMode === "joined" ? "Joined demo room" : "Demo room"}
             restaurantSource={restaurantSource}
             onVote={handleVote}
             onReset={resetVotes}
-            onEditPreferences={() => setStep("setup")}
+            onEditPreferences={() => {
+              setSetupFor("demo");
+              setStep("setup");
+            }}
           />
         )}
       </section>

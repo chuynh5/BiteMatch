@@ -4,11 +4,15 @@ export function getInviteText(roomCode: string) {
   return `Help me pick dinner on BiteMatch! Join room ${roomCode}.`;
 }
 
+const demoCodes = new Set(["4827", "7392"]);
+
+/** Real rooms open straight into /room; the built-in demo codes go through the home page. */
 export function getInviteUrl(roomCode: string) {
+  const path = demoCodes.has(roomCode) ? `/?room=${roomCode}` : `/room?code=${roomCode}`;
   if (typeof window === "undefined") {
-    return `/?room=${roomCode}`;
+    return path;
   }
-  return `${window.location.origin}/?room=${roomCode}`;
+  return `${window.location.origin}${path}`;
 }
 
 /** Copies the invite link to the clipboard. */

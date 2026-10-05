@@ -40,6 +40,29 @@ GOOGLE_PLACES_API_KEY=your_key_here
 
 When browser location or live lookup is unavailable, the app falls back to the curated demo restaurant dataset so the portfolio demo still works.
 
+## Real Rooms With Friends
+
+Rooms are stored in [Supabase](https://supabase.com) (free tier is plenty), so friends on different phones join the same room and see votes live.
+
+1. Create a free Supabase project.
+2. In the project, open **SQL Editor > New query**, paste all of `supabase/schema.sql`, and click **Run**.
+3. Open **Project Settings > API** and copy the **Project URL** and the **anon public** key.
+4. Put them in `.env.local` (and in your host's environment variables when you deploy):
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+```
+
+5. Restart the dev server. Create a group, share the link (`/room?code=1234`), and friends join with their name.
+
+How it works:
+
+- The host's filters and restaurant list are saved with the room, so everyone swipes the same cards.
+- A match appears as soon as every person in the room has liked the same place. If nobody agrees on everything, the closest call shows once everyone is done.
+- There are no accounts. The 4-digit room code is the key, which is fine among friends but not private.
+- Without the two variables, the app falls back to **testing mode**: rooms are saved in your browser only, so you can try it with two tabs.
+
 ## Product Scope
 
 V1 intentionally avoids required accounts. Room, participant, and vote state are simulated in the browser for a smooth portfolio demo, while the data and matching code are separated so Supabase/realtime rooms can be added later.
@@ -53,3 +76,6 @@ Restaurant cards use hand-drawn dish illustrations from `public/illustrations/`,
 - `app/page.tsx` holds the app state and switches between screens.
 - `components/` has the screens (`Landing`, `Setup`, `Room`, `MatchResult`) and pieces (`SwipeDeck`, `DishArt`, `ShareButton`).
 - `lib/matching.ts` has the match logic, and `lib/demoVotes.ts` simulates the demo friends' votes.
+- `lib/rooms/` saves real rooms: `supabaseStore.ts` for the shared database, `deviceStore.ts` for testing mode.
+- `app/room/page.tsx` and `components/LiveRoom.tsx` are the room friends join from an invite link.
+- `supabase/schema.sql` creates the database tables.
