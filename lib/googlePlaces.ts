@@ -1,5 +1,6 @@
 import { restaurants as curatedRestaurants } from "@/data/restaurants";
 import { MAX_ROOM_RESTAURANTS } from "@/lib/limits";
+import { pickForRoom } from "@/lib/pickRestaurants";
 import { tryUseQuota } from "@/lib/usageCap";
 import type { Cuisine, PriceLevel, Restaurant } from "@/types/bitematch";
 
@@ -20,6 +21,9 @@ type GooglePlace = {
       uri?: string;
     }[];
   }[];
+  rating?: number;
+  userRatingCount?: number;
+  priceLevel?: string;
   types?: string[];
   primaryType?: string;
   primaryTypeDisplayName?: {
@@ -115,10 +119,10 @@ export async function fetchNearbyRestaurants({
         headers: {
           "Content-Type": "application/json",
           "X-Goog-Api-Key": apiKey,
-          // Only "Pro" fields: rating and priceLevel would bump every search to
-          // Google's pricier Enterprise tier (1,000 free a month instead of 5,000).
+          // rating, userRatingCount and priceLevel put this search in Google's
+          // Enterprise tier: 1,000 free a month (lib/usageCap.ts stays under it).
           "X-Goog-FieldMask":
-            "places.id,places.displayName,places.formattedAddress,places.location,places.photos,places.types,places.primaryType,places.primaryTypeDisplayName"
+            "places.id,places.displayName,places.formattedAddress,places.location,places.photos,places.types,places.primaryType,places.primaryTypeDisplayName,places.rating,places.userRatingCount,places.priceLevel"
         },
         body: JSON.stringify({
           includedPrimaryTypes,
@@ -150,7 +154,7 @@ export async function fetchNearbyRestaurants({
       if (
         restaurant &&
         prices.includes(restaurant.price) &&
-        cuisines.includes(restaurant.cuisine)
+        (cuisines.length === 0 || cuisines.includes(restaurant.cuisine))
       ) {
         mappedRestaurants.push(restaurant);
       }
@@ -161,8 +165,9 @@ export async function fetchNearbyRestaurants({
     }
 
     return {
-      // Google returns up to 20 for the same price; keep the 10 most popular that fit the filters.
-      restaurants: mappedRestaurants.slice(0, MAX_ROOM_RESTAURANTS),
+      // Google returns up to 20 for the same price. Keep 10: cuisines take
+      // turns, and higher-rated, well-reviewed places go first.
+      restaurants: pickForRoom(mappedRestaurants, cuisines, MAX_ROOM_RESTAURANTS),
       source: "google"
     };
   } catch {
@@ -234,9 +239,12 @@ async function fetchOpenStreetMapRestaurants({
       mappedRestaurants.push(restaurant);
     }
 
-    const sortedRestaurants = mappedRestaurants
-      .sort((a, b) => a.distance - b.distance)
-      .slice(0, MAX_ROOM_RESTAURANTS);
+    // No ratings on OpenStreetMap: nearest first, cuisines taking turns.
+    const sortedRestaurants = pickForRoom(
+      mappedRestaurants.sort((a, b) => a.distance - b.distance),
+      cuisines,
+      MAX_ROOM_RESTAURANTS
+    );
 
     if (sortedRestaurants.length === 0) {
       return curatedFallback("No nearby OpenStreetMap restaurants matched those filters, so this room is using curated demo data.");
@@ -274,7 +282,7 @@ export function mapGooglePlace(
   }
 
   const cuisine = inferCuisine(place);
-  const price = estimatePrice(place);
+  const price = mapPriceLevel(place.priceLevel) ?? estimatePrice(place);
   const photos = (place.photos ?? [])
     .filter((photo) => photo.name?.startsWith("places/"))
     .slice(0, MAX_PHOTOS)
@@ -295,8 +303,8 @@ export function mapGooglePlace(
     price,
     neighborhood: inferNeighborhood(address),
     address,
-    // Ratings would cost an Enterprise-tier search, so live listings don't show one.
-    rating: 0,
+    rating: place.rating ?? 0,
+    reviewCount: place.userRatingCount,
     distance,
     image: photos[0]?.src ?? "",
     menuImages: photos,
@@ -415,7 +423,14 @@ function inferNeighborhood(address: string) {
   return parts.length >= 2 ? parts[parts.length - 3] ?? parts[0] : parts[0] ?? "Nearby";
 }
 
-/** A rough price from the place type, since Google's priceLevel field costs extra. */
+function mapPriceLevel(priceLevel?: string): PriceLevel | undefined {
+  if (priceLevel === "PRICE_LEVEL_EXPENSIVE" || priceLevel === "PRICE_LEVEL_VERY_EXPENSIVE") return "$$$";
+  if (priceLevel === "PRICE_LEVEL_MODERATE") return "$$";
+  if (priceLevel === "PRICE_LEVEL_INEXPENSIVE" || priceLevel === "PRICE_LEVEL_FREE") return "$";
+  return undefined;
+}
+
+/** A rough price from the place type, for places Google has no price level for. */
 function estimatePrice(place: GooglePlace): PriceLevel {
   const types = [place.primaryType, ...(place.types ?? [])];
   if (types.includes("fine_dining_restaurant") || types.includes("steak_house")) return "$$$";

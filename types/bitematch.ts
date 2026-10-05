@@ -34,6 +34,8 @@ export type Restaurant = {
   neighborhood: string;
   address: string;
   rating: number;
+  /** Number of Google reviews behind the rating, when known. */
+  reviewCount?: number;
   distance: number;
   image: string;
   menuImages: {

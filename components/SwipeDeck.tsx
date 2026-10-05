@@ -137,6 +137,11 @@ export function SwipeDeck({
   );
 }
 
+/** 1234 → "1.2k", 87 → "87" */
+function formatCount(count: number) {
+  return count >= 1000 ? `${(count / 1000).toFixed(count >= 10000 ? 0 : 1)}k` : String(count);
+}
+
 function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
   return (
     <article className="restaurant-card">
@@ -161,9 +166,10 @@ function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
             {restaurant.neighborhood} · {restaurant.distance.toFixed(1)} mi
           </span>
           {restaurant.rating > 0 ? (
-            <span>
+            <span aria-label={`Rated ${restaurant.rating.toFixed(1)}${restaurant.reviewCount ? ` from ${restaurant.reviewCount} reviews` : ""}`}>
               <Star size={15} />
-              {restaurant.rating}
+              {restaurant.rating.toFixed(1)}
+              {restaurant.reviewCount ? ` (${formatCount(restaurant.reviewCount)})` : ""}
             </span>
           ) : (
             <span>Live listing</span>

@@ -11,8 +11,9 @@ import { createClient } from "@supabase/supabase-js";
 export const MONTHLY_LIMITS = {
   // Google: 1,000 free photo loads a month (Enterprise tier). Stop a little short.
   google_photo: 950,
-  // Google: 5,000 free nearby searches a month (Pro tier). Google also caps this at 100 a day.
-  google_nearby: 4500
+  // Google: 1,000 free nearby searches a month at the Enterprise tier (we ask for
+  // ratings and price levels). Google also caps this at 100 a day.
+  google_nearby: 950
 } as const;
 
 export type QuotaKind = keyof typeof MONTHLY_LIMITS;
