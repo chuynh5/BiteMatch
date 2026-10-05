@@ -15,34 +15,70 @@ export function filterRestaurants(
   });
 }
 
+export type TieBreakReason = "rating" | "reviews" | "distance" | "name";
+
+/**
+ * Orders tied restaurants the same way on every phone: higher rating, then
+ * more reviews, then closer, then alphabetical as a last resort.
+ */
+export function compareForTieBreak(a: Restaurant, b: Restaurant): number {
+  return (
+    (b.rating ?? 0) - (a.rating ?? 0) ||
+    (b.reviewCount ?? 0) - (a.reviewCount ?? 0) ||
+    a.distance - b.distance ||
+    a.name.localeCompare(b.name)
+  );
+}
+
+/** Which rule separated the winner from the runner-up. */
+export function tieBreakReason(winner: Restaurant, runnerUp: Restaurant): TieBreakReason {
+  if ((winner.rating ?? 0) !== (runnerUp.rating ?? 0)) return "rating";
+  if ((winner.reviewCount ?? 0) !== (runnerUp.reviewCount ?? 0)) return "reviews";
+  if (winner.distance !== runnerUp.distance) return "distance";
+  return "name";
+}
+
+/** A place everyone liked. If several qualify, the tie-break order picks one. */
 export function getMatch(
   restaurants: Restaurant[],
   votes: VoteMap,
   participantIds: string[]
 ) {
-  return restaurants.find((restaurant) =>
-    participantIds.every(
-      (participantId) => votes[participantId]?.[restaurant.id] === "like"
+  return restaurants
+    .filter((restaurant) =>
+      participantIds.every((participantId) => votes[participantId]?.[restaurant.id] === "like")
     )
-  );
+    .sort(compareForTieBreak)[0];
 }
 
-/** The restaurant with the most likes, used when nothing was unanimous. */
+export type TopPick = {
+  restaurant: Restaurant;
+  likes: number;
+  /** Other places with the same number of likes, if it was a tie. */
+  tiedWith: Restaurant[];
+  /** How the tie was broken, when there was one. */
+  reason?: TieBreakReason;
+};
+
+/** The restaurant with the most likes, used when nothing was unanimous. Ties are broken fairly. */
 export function getTopPick(
   restaurants: Restaurant[],
   votes: VoteMap,
   participantIds: string[]
-) {
-  let best: { restaurant: Restaurant; likes: number } | undefined;
+): TopPick | undefined {
+  if (restaurants.length === 0) return undefined;
 
-  for (const restaurant of restaurants) {
-    const { likes } = getVoteStats(restaurant, votes, participantIds);
-    if (!best || likes > best.likes) {
-      best = { restaurant, likes };
-    }
-  }
+  const likesFor = (restaurant: Restaurant) => getVoteStats(restaurant, votes, participantIds).likes;
+  const most = Math.max(...restaurants.map(likesFor));
+  const tied = restaurants.filter((restaurant) => likesFor(restaurant) === most).sort(compareForTieBreak);
+  const [winner, ...others] = tied;
 
-  return best;
+  return {
+    restaurant: winner,
+    likes: most,
+    tiedWith: others,
+    reason: others.length > 0 ? tieBreakReason(winner, others[0]) : undefined
+  };
 }
 
 export function getVoteStats(

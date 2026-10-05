@@ -91,7 +91,7 @@ export default function Home() {
   );
 
   const topPick = useMemo(
-    () => getTopPick(filteredRestaurants, roomVotes, participantIds)?.restaurant,
+    () => getTopPick(filteredRestaurants, roomVotes, participantIds),
     [filteredRestaurants, participantIds, roomVotes]
   );
 

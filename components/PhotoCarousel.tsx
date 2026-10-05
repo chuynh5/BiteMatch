@@ -17,7 +17,16 @@ export type PhotoTapDetail = { side: "prev" | "next" };
  * fail (for example, the daily cap was reached), it falls back to the
  * cuisine illustration.
  */
-export function PhotoCarousel({ restaurant, sizes }: { restaurant: Restaurant; sizes: string }) {
+export function PhotoCarousel({
+  restaurant,
+  sizes,
+  tapToFlip = false
+}: {
+  restaurant: Restaurant;
+  sizes: string;
+  /** Handle clicks itself. Off inside the swipe deck, which sends taps as events instead. */
+  tapToFlip?: boolean;
+}) {
   const [index, setIndex] = useState(0);
   const [failed, setFailed] = useState<string[]>([]);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -38,11 +47,25 @@ export function PhotoCarousel({ restaurant, sizes }: { restaurant: Restaurant; s
   }, [photos.length]);
 
   if (!photo) {
-    return <DishArt restaurant={{ ...restaurant, source: "curated" }} sizes={sizes} />;
+    return <DishArt restaurant={restaurant} sizes={sizes} />;
   }
 
   return (
-    <div className="photo-carousel" data-photo-carousel ref={rootRef}>
+    <div
+      className="photo-carousel"
+      data-photo-carousel
+      ref={rootRef}
+      onClick={
+        tapToFlip
+          ? (event) => {
+              if ((event.target as HTMLElement).closest("a, button")) return;
+              const box = event.currentTarget.getBoundingClientRect();
+              const next = event.clientX >= box.left + box.width / 2;
+              setIndex(next ? Math.min(current + 1, photos.length - 1) : Math.max(current - 1, 0));
+            }
+          : undefined
+      }
+    >
       {/* The same photo, blurred, fills any space around the uncropped one. */}
       <Image
         key={`${photo.src}-backdrop`}

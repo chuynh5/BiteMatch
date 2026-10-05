@@ -4,7 +4,7 @@ import { Lock, UserPlus } from "lucide-react";
 import { MatchResult } from "@/components/MatchResult";
 import { ShareButton } from "@/components/ShareButton";
 import { SwipeDeck } from "@/components/SwipeDeck";
-import { getVoteStats } from "@/lib/matching";
+import { getVoteStats, type TopPick } from "@/lib/matching";
 import type {
   Participant,
   Preferences,
@@ -43,7 +43,7 @@ export function Room({
   /** Everyone's votes, including yours. */
   roomVotes: VoteMap;
   match?: Restaurant;
-  topPick?: Restaurant;
+  topPick?: TopPick;
   /** People who still need to finish voting before the result can be shown. */
   waitingFor?: Participant[];
   roomCode: string;
@@ -93,14 +93,35 @@ export function Room({
         ) : null}
       </div>
     );
+  } else if (finished && topPick && topPick.likes === 0) {
+    stage = (
+      <div className="waiting-state">
+        <h2>Nobody bit.</h2>
+        <p>
+          Not one place got a yes this round. Try different cuisines, a wider distance, or another price range.
+        </p>
+        {onReset ? (
+          <button className="primary-button" onClick={onReset}>
+            Vote again
+          </button>
+        ) : null}
+        {onEditPreferences ? (
+          <button className="secondary-button" onClick={onEditPreferences}>
+            Change filters
+          </button>
+        ) : null}
+      </div>
+    );
   } else if (finished && topPick) {
     stage = (
       <MatchResult
-        restaurant={topPick}
+        restaurant={topPick.restaurant}
         votes={roomVotes}
         participants={participants}
         onReset={onReset}
         unanimous={false}
+        tiedWith={topPick.tiedWith}
+        tieReason={topPick.reason}
       />
     );
   } else if (activeRestaurant) {

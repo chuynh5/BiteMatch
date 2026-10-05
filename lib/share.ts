@@ -44,3 +44,21 @@ export async function shareInvite(roomCode: string): Promise<ShareResult> {
   }
   return copyInvite(roomCode);
 }
+
+/** Shares any text + link through the phone's share sheet, or copies it. */
+export async function shareMessage(title: string, text: string, url: string): Promise<ShareResult> {
+  if (typeof navigator !== "undefined" && "share" in navigator) {
+    try {
+      await navigator.share({ title, text, url });
+      return "shared";
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return "failed";
+    }
+  }
+  try {
+    await navigator.clipboard.writeText(`${text} ${url}`);
+    return "copied";
+  } catch {
+    return "failed";
+  }
+}

@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { FoodImage } from "@/components/FoodImage";
 import type { Cuisine, Restaurant } from "@/types/bitematch";
 
 /**
@@ -26,26 +25,11 @@ export function DishArt({
   priority,
   bob = true
 }: {
-  restaurant: Pick<Restaurant, "cuisine" | "name" | "image" | "source">;
+  restaurant: Pick<Restaurant, "cuisine" | "name">;
   sizes: string;
   priority?: boolean;
   bob?: boolean;
 }) {
-
-  // Real Google Places photos win when we have them.
-  if (restaurant.source === "google" && restaurant.image) {
-    return (
-      <FoodImage
-        src={restaurant.image}
-        alt={`${restaurant.name} food`}
-        cuisine={restaurant.cuisine}
-        label={restaurant.cuisine}
-        unoptimized
-        sizes={sizes}
-      />
-    );
-  }
-
   const illustration = illustrations[restaurant.cuisine];
 
   return (
