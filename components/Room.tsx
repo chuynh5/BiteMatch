@@ -4,7 +4,9 @@ import { Lock, Timer, UserPlus } from "lucide-react";
 import { MatchResult } from "@/components/MatchResult";
 import { ShareButton } from "@/components/ShareButton";
 import { SwipeDeck } from "@/components/SwipeDeck";
+import { useEffect } from "react";
 import { getVoteStats, type TopPick } from "@/lib/matching";
+import { prefetchFirstPhoto } from "@/lib/usePlacePhotos";
 import type {
   Participant,
   Preferences,
@@ -61,6 +63,15 @@ export function Room({
   onReset?: () => void;
   onEditPreferences?: () => void;
 }) {
+  // Warm up the next two cards' first photos while you decide on this one.
+  // (The card right behind this one is already rendered, so this mostly helps
+  // the one after it when someone swipes quickly.)
+  useEffect(() => {
+    for (const upcoming of restaurants.slice(activeIndex + 1, activeIndex + 3)) {
+      prefetchFirstPhoto(upcoming);
+    }
+  }, [restaurants, activeIndex]);
+
   const participantIds = participants.map((participant) => participant.id);
   const userVotes = roomVotes[meId] ?? {};
   const reviewedBy = (id: string) => restaurants.filter((restaurant) => roomVotes[id]?.[restaurant.id]).length;
