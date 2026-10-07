@@ -6,16 +6,19 @@ import { useEffect, useRef, useState } from "react";
 import { DishArt } from "@/components/DishArt";
 import type { Restaurant } from "@/types/bitematch";
 
+/** Photos already requested in the background during this visit. */
+const preloaded = new Set<string>();
+
 /** SwipeDeck fires this on the carousel when a press on the card didn't turn into a drag. */
 export const PHOTO_TAP_EVENT = "bitematch:photo-tap";
 export type PhotoTapDetail = { side: "prev" | "next" };
 
 /**
  * A restaurant's real photos. Tap the right side for the next photo and the
- * left side for the previous one, like stories. Only the photo on screen is
- * loaded, since each one counts against Google's free allowance. If photos
- * fail (for example, the daily cap was reached), it falls back to the
- * cuisine illustration.
+ * left side for the previous one, like stories. Only the photo on screen and
+ * the next two are loaded, since each new photo counts against Google's free
+ * allowance. If photos fail (for example, the monthly cap was reached), it
+ * falls back to the cuisine illustration.
  */
 export function PhotoCarousel({
   restaurant,
@@ -34,6 +37,21 @@ export function PhotoCarousel({
   const photos = restaurant.menuImages.filter((photo) => !failed.includes(photo.src));
   const current = Math.min(index, Math.max(photos.length - 1, 0));
   const photo = photos[current];
+
+  // Load the next two photos in the background, so tapping through feels instant.
+  // Each photo is cached by the browser and the CDN, so this only costs a Google
+  // request the first time anyone sees that photo that day.
+  useEffect(() => {
+    // The card waiting behind the current one only needs its first photo.
+    if (rootRef.current?.closest(".swipe-card-behind")) return;
+    for (const ahead of photos.slice(current + 1, current + 3)) {
+      if (preloaded.has(ahead.src)) continue;
+      preloaded.add(ahead.src);
+      const image = new window.Image();
+      image.decoding = "async";
+      image.src = ahead.src;
+    }
+  }, [current, photos]);
 
   useEffect(() => {
     const root = rootRef.current;

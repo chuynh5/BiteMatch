@@ -23,6 +23,27 @@ function lookup(restaurant: Restaurant): Promise<Photos> {
   return pending;
 }
 
+const warmed = new Set<string>();
+
+/**
+ * Starts loading a restaurant's first photo before its card is on screen, so
+ * the card shows a photo right away instead of a loading shimmer.
+ */
+export function prefetchFirstPhoto(restaurant: Restaurant) {
+  if (typeof window === "undefined") return;
+  const own = restaurant.source === "google" ? restaurant.menuImages : null;
+  if (restaurant.source === "google" && !own?.length) return;
+  if (!own && !restaurant.mapQuery) return;
+  void (own ? Promise.resolve(own) : lookup(restaurant)).then((photos) => {
+    const first = photos[0]?.src;
+    if (!first || warmed.has(first)) return;
+    warmed.add(first);
+    const image = new window.Image();
+    image.decoding = "async";
+    image.src = first;
+  });
+}
+
 /**
  * Real photos for any restaurant. Live Google listings already carry them;
  * demo and OpenStreetMap restaurants are looked up by name and address.
