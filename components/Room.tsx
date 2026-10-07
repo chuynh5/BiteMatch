@@ -4,7 +4,7 @@ import { Lock, Timer, UserPlus } from "lucide-react";
 import { MatchResult } from "@/components/MatchResult";
 import { ShareButton } from "@/components/ShareButton";
 import { SwipeDeck } from "@/components/SwipeDeck";
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { getVoteStats, type TopPick } from "@/lib/matching";
 import { prefetchFirstPhoto } from "@/lib/usePlacePhotos";
 import type {
@@ -71,6 +71,40 @@ export function Room({
       prefetchFirstPhoto(upcoming);
     }
   }, [restaurants, activeIndex]);
+
+  // Group pulse: show about 5 places, scroll for the rest, and keep the
+  // place you're voting on in view.
+  const pulseRef = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const list = pulseRef.current;
+    if (!list) return;
+    const fit = () => {
+      const rows = list.children;
+      if (rows.length <= 5) {
+        list.style.maxHeight = "";
+        return;
+      }
+      const first = rows[0] as HTMLElement;
+      const fifth = rows[4] as HTMLElement;
+      // Show half of the 6th row so it's clear the list scrolls.
+      const sixth = rows[5] as HTMLElement;
+      const height = fifth.offsetTop + fifth.offsetHeight - first.offsetTop + sixth.offsetHeight / 2;
+      list.style.maxHeight = `${Math.round(height)}px`;
+    };
+    fit();
+    window.addEventListener("resize", fit);
+    return () => window.removeEventListener("resize", fit);
+  }, [restaurants.length]);
+
+  useEffect(() => {
+    const list = pulseRef.current;
+    const row = list?.children[Math.min(activeIndex, restaurants.length - 1)] as HTMLElement | undefined;
+    if (!list || !row || list.scrollHeight <= list.clientHeight) return;
+    const top = row.offsetTop - (list.children[0] as HTMLElement).offsetTop;
+    if (top < list.scrollTop || top + row.offsetHeight > list.scrollTop + list.clientHeight) {
+      list.scrollTo({ top: Math.max(0, top - row.offsetHeight), behavior: "smooth" });
+    }
+  }, [activeIndex, restaurants.length]);
 
   const participantIds = participants.map((participant) => participant.id);
   const userVotes = roomVotes[meId] ?? {};
@@ -267,7 +301,7 @@ export function Room({
       <aside className="results-panel">
         <h2>Group pulse</h2>
         <p className="results-hint">Results unlock as you vote.</p>
-        <div className="results-list">
+        <div className="results-list" ref={pulseRef}>
           {restaurants.map((restaurant) => {
             const revealed = Boolean(userVotes[restaurant.id]);
             const stats = getVoteStats(restaurant, roomVotes, participantIds);
