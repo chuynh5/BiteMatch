@@ -7,10 +7,12 @@ import { Room } from "@/components/Room";
 import {
   RoomFullError,
   RoomNotFoundError,
+  VotingClosedError,
   getRoomStore,
   myIdentity,
   type RoomSnapshot
 } from "@/lib/rooms";
+import { deadlineAt, formatTimeLeft, isVotingClosed } from "@/lib/deadline";
 import { getMatch, getTopPick } from "@/lib/matching";
 import type { Vote, VoteMap } from "@/types/bitematch";
 
@@ -31,6 +33,17 @@ export function LiveRoom({ code }: { code: string }) {
     setMeId(myIdentity.get(code));
     return store.subscribe(code, setSnapshot);
   }, [code, store]);
+
+  const deadline = deadlineAt(snapshot?.createdAt, snapshot?.preferences.deadlineMinutes);
+  const [now, setNow] = useState(() => Date.now());
+  const closed = isVotingClosed(deadline, now);
+
+  // Tick once a second while a deadline is counting down, so every phone closes voting at the same moment.
+  useEffect(() => {
+    if (deadline === null || closed) return;
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, [deadline, closed]);
 
   const participants = useMemo(() => snapshot?.participants ?? [], [snapshot]);
   const restaurants = useMemo(() => snapshot?.restaurants ?? [], [snapshot]);
@@ -70,6 +83,11 @@ export function LiveRoom({ code }: { code: string }) {
             ? `${participants.map((person) => person.name).join(", ")} ${participants.length === 1 ? "is" : "are"} already here.`
             : "Be the first one in."}{" "}
           Vote privately on {restaurants.length} places. The match shows up when everyone agrees.
+          {deadline !== null
+            ? closed
+              ? " Voting has already closed, but you can still see the result."
+              : ` Voting closes in ${formatTimeLeft(deadline - now)}.`
+            : ""}
         </p>
         {participants.length > 0 ? (
           <div className="match-avatars" aria-hidden="true">
@@ -136,12 +154,23 @@ export function LiveRoom({ code }: { code: string }) {
 
   const reviewedBy = (id: string) => restaurants.filter((restaurant) => roomVotes[id]?.[restaurant.id]).length;
   const firstUnvoted = restaurants.findIndex((restaurant) => !roomVotes[meId]?.[restaurant.id]);
-  const activeIndex = firstUnvoted === -1 ? restaurants.length : firstUnvoted;
+  // Once the deadline passes, nobody can vote: the room decides with what it has.
+  const activeIndex = closed || firstUnvoted === -1 ? restaurants.length : firstUnvoted;
   const everyoneDone = participants.every((person) => reviewedBy(person.id) >= restaurants.length);
   const match = participants.length >= 2 ? getMatch(restaurants, roomVotes, participantIds) : undefined;
   const topPick =
-    participants.length >= 2 && everyoneDone ? getTopPick(restaurants, roomVotes, participantIds) : undefined;
-  const waitingFor = participants.filter((person) => person.id !== meId && reviewedBy(person.id) < restaurants.length);
+    (participants.length >= 2 && everyoneDone) || closed
+      ? getTopPick(restaurants, roomVotes, participantIds)
+      : undefined;
+  const waitingFor = closed
+    ? []
+    : participants.filter((person) => person.id !== meId && reviewedBy(person.id) < restaurants.length);
+  const unfinished = participants.filter((person) => reviewedBy(person.id) < restaurants.length);
+  const closedNote =
+    closed && !everyoneDone
+      ? `Time's up. ${listNames(unfinished.map((person) => person.name))} didn't finish voting, so the group's top pick won with the votes in.`
+      : undefined;
+  const deadlineText = deadline !== null && !closed && !match ? `Voting closes in ${formatTimeLeft(deadline - now)}` : undefined;
 
   return (
     <Room
@@ -157,6 +186,8 @@ export function LiveRoom({ code }: { code: string }) {
       roomCode={code}
       roomLabel={`${participants.length} ${participants.length === 1 ? "person" : "people"} here`}
       restaurantSource={restaurants[0]?.source ?? "curated"}
+      deadlineText={deadlineText}
+      closedNote={closedNote}
       notice={
         error ??
         (store.kind === "device"
@@ -164,17 +195,23 @@ export function LiveRoom({ code }: { code: string }) {
           : undefined)
       }
       onVote={async (restaurantId, vote) => {
+        if (closed) return;
         setPending((current) => ({ ...current, [restaurantId]: vote }));
         try {
           await store.castVote(code, meId, restaurantId, vote);
           setError(null);
-        } catch {
+        } catch (voteError) {
           setPending((current) => {
             const next = { ...current };
             delete next[restaurantId];
             return next;
           });
-          setError("That vote didn't save. Check your connection and try again.");
+          if (voteError instanceof VotingClosedError) {
+            setNow(Date.now());
+            setError("Voting has closed, so that vote didn't count.");
+          } else {
+            setError("That vote didn't save. Check your connection and try again.");
+          }
         }
       }}
     />
@@ -194,4 +231,10 @@ function RoomMessage({ title, body, action }: { title: string; body: string; act
       ) : null}
     </div>
   );
+}
+
+/** "Evan", "Evan and Jasper", "Evan, Jasper and Kristy" */
+function listNames(names: string[]) {
+  if (names.length <= 1) return names.join("");
+  return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
 }

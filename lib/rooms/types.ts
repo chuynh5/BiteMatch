@@ -8,6 +8,8 @@ export type RoomSnapshot = {
   restaurants: Restaurant[];
   participants: Participant[];
   votes: VoteMap;
+  /** When the room was created (ISO). Voting deadlines count from here. */
+  createdAt?: string;
 };
 
 export type CreateRoomInput = {
@@ -34,6 +36,13 @@ export class RoomNotFoundError extends Error {
   constructor(code: string) {
     super(`Room ${code} doesn't exist.`);
     this.name = "RoomNotFoundError";
+  }
+}
+
+export class VotingClosedError extends Error {
+  constructor() {
+    super("Voting has closed for this room.");
+    this.name = "VotingClosedError";
   }
 }
 

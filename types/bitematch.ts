@@ -18,6 +18,8 @@ export type Preferences = {
   cuisines: Cuisine[];
   prices: PriceLevel[];
   maxDistance: number;
+  /** Live rooms only: minutes until voting closes and the top pick wins. null or missing = no deadline. */
+  deadlineMinutes?: number | null;
 };
 
 export type Participant = {

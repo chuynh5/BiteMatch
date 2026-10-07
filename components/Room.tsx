@@ -1,6 +1,6 @@
 "use client";
 
-import { Lock, UserPlus } from "lucide-react";
+import { Lock, Timer, UserPlus } from "lucide-react";
 import { MatchResult } from "@/components/MatchResult";
 import { ShareButton } from "@/components/ShareButton";
 import { SwipeDeck } from "@/components/SwipeDeck";
@@ -30,6 +30,8 @@ export function Room({
   roomLabel,
   restaurantSource,
   notice,
+  deadlineText,
+  closedNote,
   onVote,
   onReset,
   onEditPreferences
@@ -51,6 +53,10 @@ export function Room({
   restaurantSource: RestaurantSource;
   /** Small banner above the card, e.g. when rooms only work on this device. */
   notice?: string;
+  /** Countdown while voting is open, e.g. "Voting closes in 4:12". */
+  deadlineText?: string;
+  /** Set once the deadline has passed: why the room decided without everyone. */
+  closedNote?: string;
   onVote: (restaurantId: string, vote: Vote) => void;
   onReset?: () => void;
   onEditPreferences?: () => void;
@@ -62,13 +68,14 @@ export function Room({
   const activeRestaurant = restaurants[activeIndex];
   const finished = restaurants.length > 0 && activeIndex >= restaurants.length;
   const alone = participants.length < 2;
+  const closed = Boolean(closedNote);
 
   let stage;
   if (match) {
     stage = (
       <MatchResult restaurant={match} votes={roomVotes} participants={participants} onReset={onReset} unanimous />
     );
-  } else if (finished && (alone || waitingFor.length > 0)) {
+  } else if (finished && !closed && (alone || waitingFor.length > 0)) {
     stage = (
       <div className="waiting-state">
         <div className="waiting-dots" aria-hidden="true">
@@ -82,6 +89,12 @@ export function Room({
             ? "Invite friends with the room code. The match appears once everyone has voted."
             : `Still voting: ${waitingFor.map((person) => person.name).join(", ")}. This updates by itself.`}
         </p>
+        {deadlineText ? (
+          <p className="deadline-pill">
+            <Timer size={15} aria-hidden="true" />
+            {deadlineText}, then the group&apos;s top pick wins.
+          </p>
+        ) : null}
         {alone ? (
           <div className="waiting-invite">
             <UserPlus size={18} />
@@ -97,6 +110,7 @@ export function Room({
     stage = (
       <div className="waiting-state">
         <h2>Nobody bit.</h2>
+        {closedNote ? <p>{closedNote}</p> : null}
         <p>
           Not one place got a yes this round. Try different cuisines, a wider distance, or another price range.
         </p>
@@ -122,6 +136,7 @@ export function Room({
         unanimous={false}
         tiedWith={topPick.tiedWith}
         tieReason={topPick.reason}
+        note={closedNote}
       />
     );
   } else if (activeRestaurant) {
@@ -139,6 +154,12 @@ export function Room({
             {Math.min(activeIndex + 1, restaurants.length)} / {restaurants.length}
           </span>
         </div>
+        {deadlineText ? (
+          <p className="deadline-pill">
+            <Timer size={15} aria-hidden="true" />
+            {deadlineText}
+          </p>
+        ) : null}
         <div className="progress-bar" aria-hidden="true">
           <span style={{ width: `${(reviewed / restaurants.length) * 100}%` }} />
         </div>

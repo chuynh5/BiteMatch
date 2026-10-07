@@ -1,6 +1,7 @@
 "use client";
 
-import { ArrowRight, MapPin, SlidersHorizontal } from "lucide-react";
+import { ArrowRight, MapPin, SlidersHorizontal, Timer } from "lucide-react";
+import { DEADLINE_OPTIONS, deadlineLabel } from "@/lib/deadline";
 import { cuisineOptions, priceOptions } from "@/data/restaurants";
 import type { Cuisine, Preferences, PriceLevel, Restaurant } from "@/types/bitematch";
 
@@ -21,6 +22,7 @@ export function Setup({
   submitLabel,
   submitting = false,
   submitError,
+  showDeadline = false,
   onSubmit
 }: {
   name: string;
@@ -38,6 +40,8 @@ export function Setup({
   submitLabel: string;
   submitting?: boolean;
   submitError?: string | null;
+  /** Show the voting deadline picker (real rooms only, not the demo). */
+  showDeadline?: boolean;
   onSubmit: () => void;
 }) {
   const unavailableCuisines = preferences.cuisines.filter(
@@ -151,6 +155,35 @@ export function Setup({
             }
           />
         </div>
+
+        {showDeadline ? (
+          <div className="control-block">
+            <div className="range-heading">
+              <h3>Voting deadline</h3>
+              <Timer size={17} aria-hidden="true" />
+            </div>
+            <div className="segmented-control deadline-control" role="group" aria-label="Voting deadline">
+              {DEADLINE_OPTIONS.map((minutes) => {
+                const selected = (preferences.deadlineMinutes ?? null) === minutes;
+                return (
+                  <button
+                    key={minutes ?? "none"}
+                    className={selected ? "selected" : undefined}
+                    aria-pressed={selected}
+                    onClick={() => setPreferences({ ...preferences, deadlineMinutes: minutes })}
+                  >
+                    {deadlineLabel(minutes)}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="control-hint">
+              {preferences.deadlineMinutes
+                ? `If someone hasn't voted after ${preferences.deadlineMinutes} minutes, the group's top pick wins.`
+                : "The room waits until everyone has voted."}
+            </p>
+          </div>
+        ) : null}
 
         <div className="location-box">
           <div>

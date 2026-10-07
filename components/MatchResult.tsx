@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ExternalLink, PartyPopper, Scale, Share2, Trophy } from "lucide-react";
+import { Check, ExternalLink, PartyPopper, Scale, Share2, Timer, Trophy } from "lucide-react";
 import { useState } from "react";
 import { RestaurantPhotos } from "@/components/RestaurantPhotos";
 import type { TieBreakReason } from "@/lib/matching";
@@ -53,7 +53,8 @@ export function MatchResult({
   onReset,
   unanimous,
   tiedWith = [],
-  tieReason
+  tieReason,
+  note
 }: {
   restaurant: Restaurant;
   votes: VoteMap;
@@ -65,6 +66,8 @@ export function MatchResult({
   /** Other places with the same number of likes, when the top pick was a tie. */
   tiedWith?: Restaurant[];
   tieReason?: TieBreakReason;
+  /** Extra line under the result, e.g. when the voting deadline decided it. */
+  note?: string;
 }) {
   const likers = participants.filter(
     (participant) => votes[participant.id]?.[restaurant.id] === "like"
@@ -111,6 +114,12 @@ export function MatchResult({
             </>
           )}
         </p>
+        {note ? (
+          <p className="tie-note deadline-note">
+            <Timer size={16} aria-hidden="true" />
+            <span>{note}</span>
+          </p>
+        ) : null}
         {isTie ? (
           <p className="tie-note">
             <Scale size={16} aria-hidden="true" />

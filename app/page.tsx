@@ -8,6 +8,7 @@ import { Room, type RoomMode } from "@/components/Room";
 import { Setup, type LocationStatus } from "@/components/Setup";
 import { restaurants } from "@/data/restaurants";
 import { createFriendVotes } from "@/lib/demoVotes";
+import { DEFAULT_DEADLINE_MINUTES } from "@/lib/deadline";
 import { MAX_ROOM_RESTAURANTS } from "@/lib/limits";
 import { pickForRoom } from "@/lib/pickRestaurants";
 import { getRoomStore, myIdentity } from "@/lib/rooms";
@@ -48,7 +49,8 @@ export default function Home() {
   const [preferences, setPreferences] = useState<Preferences>({
     cuisines: ["Italian", "Japanese", "Mexican", "Thai"],
     prices: ["$", "$$"],
-    maxDistance: 3
+    maxDistance: 3,
+    deadlineMinutes: DEFAULT_DEADLINE_MINUTES
   });
   const [activeIndex, setActiveIndex] = useState(0);
   const [votes, setVotes] = useState<VoteMap>({});
@@ -338,6 +340,7 @@ export default function Home() {
             submitLabel={setupFor === "demo" ? "Back to the demo room" : creating ? "Creating room…" : "Create room"}
             submitting={creating}
             submitError={setupFor === "new-room" ? createError : null}
+            showDeadline={setupFor === "new-room"}
             onSubmit={setupFor === "demo" ? () => enterRoom(currentRoomCode, roomMode) : createRealRoom}
           />
         )}

@@ -4,6 +4,7 @@ import {
   MAX_PARTICIPANTS,
   RoomFullError,
   RoomNotFoundError,
+  VotingClosedError,
   colorFor,
   randomRoomCode,
   reservedCodes,
@@ -16,7 +17,7 @@ import {
  * phones see the same room. Tables are created by supabase/schema.sql.
  */
 
-type RoomRow = { code: string; preferences: Preferences; restaurants: Restaurant[] };
+type RoomRow = { code: string; preferences: Preferences; restaurants: Restaurant[]; created_at: string };
 type ParticipantRow = { id: string; room_code: string; name: string; color: string; joined_at: string };
 type VoteRow = { participant_id: string; restaurant_id: string; vote: Vote };
 
@@ -30,7 +31,7 @@ export function createSupabaseStore(url: string, anonKey: string): RoomStore {
 
   async function fetchSnapshot(code: string): Promise<RoomSnapshot | null> {
     const [roomResult, peopleResult, votesResult] = await Promise.all([
-      db.from("rooms").select("code, preferences, restaurants").eq("code", code).maybeSingle<RoomRow>(),
+      db.from("rooms").select("code, preferences, restaurants, created_at").eq("code", code).maybeSingle<RoomRow>(),
       db
         .from("participants")
         .select("id, room_code, name, color, joined_at")
@@ -54,6 +55,7 @@ export function createSupabaseStore(url: string, anonKey: string): RoomStore {
       code: roomResult.data.code,
       preferences: roomResult.data.preferences,
       restaurants: roomResult.data.restaurants,
+      createdAt: roomResult.data.created_at,
       participants: (peopleResult.data ?? []).map((row) => ({ id: row.id, name: row.name, color: row.color })),
       votes
     };
@@ -101,7 +103,11 @@ export function createSupabaseStore(url: string, anonKey: string): RoomStore {
           { room_code: code, participant_id: participantId, restaurant_id: restaurantId, vote },
           { onConflict: "participant_id,restaurant_id" }
         );
-      if (error) throw error;
+      if (error) {
+        // 42501 = blocked by row-level security, which is how the database enforces the voting deadline.
+        if (error.code === "42501") throw new VotingClosedError();
+        throw error;
+      }
     },
 
     subscribe(code, onChange) {
