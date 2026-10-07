@@ -2230,7 +2230,8 @@ p {
     padding: 8px 10px;
   }
 
-  .result-row span {
+  /* Hide the neighborhood line, but keep the vote meter's fill. */
+  .result-row > div:first-child span {
     display: none;
   }
 
@@ -2835,4 +2836,46 @@ a.brand {
 
 .tie-note.deadline-note {
   background: var(--butter);
+}
+
+/* ---------- Group pulse list: fit the panel, scroll after 5 ----------- */
+
+.results-panel {
+  min-width: 0;
+}
+
+.results-list {
+  grid-template-columns: minmax(0, 1fr);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 2px;
+  position: relative;
+  scrollbar-color: var(--line) transparent;
+  scrollbar-width: thin;
+}
+
+.result-row {
+  min-width: 0;
+}
+
+.result-row > div:first-child {
+  min-width: 0;
+}
+
+/* ---------- Card waiting behind: show only its edge ------------------- */
+
+.swipe-card-behind {
+  border-radius: var(--radius-lg);
+  inset: 0;
+  overflow: hidden;
+  position: absolute;
+}
+
+.swipe-card-behind .restaurant-card {
+  height: 100%;
+}
+
+/* Its photos still load in the background; only the content is hidden. */
+.swipe-card-behind .restaurant-card > * {
+  visibility: hidden;
 }
