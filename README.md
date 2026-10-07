@@ -32,6 +32,7 @@ Picking dinner in a group chat goes in circles: nobody wants to be the one who p
 - **Live rooms across phones.** Joins and votes sync in real time through Supabase. Refreshing keeps your spot.
 - **Real restaurants, real photos.** Nearby places come from Google Places, with up to 5 photos per restaurant you can tap through like stories. OpenStreetMap is the free fallback.
 - **Fair picks.** The 10 cards take turns across your chosen cuisines, and places rated 4.0+ with plenty of reviews go first.
+- **Voting deadline.** The host can give the room 5 to 30 minutes. If someone hasn't voted by then, the group's top pick wins with the votes in, so one slow friend can't stall everyone.
 - **Fair tie-breaks.** If two places tie, the higher rating wins, then more reviews, then the closer one. Every phone shows the same winner and a line explaining why.
 - **Swipe, tap or use keys.** Drag the card to vote, tap the photo to flip it, or use the ← → keys on a computer.
 - **Fits any screen.** Tested from a 320px iPhone SE up to a desktop monitor.
@@ -79,10 +80,11 @@ On Vercel, add the same variables under **Settings → Environment Variables**, 
 
 ### Database setup
 
-In Supabase, open **SQL Editor → New query** and run both files once. Both are safe to re-run.
+In Supabase, open **SQL Editor → New query** and run each file once, in order. All are safe to re-run.
 
 1. `supabase/schema.sql` creates rooms, participants and votes, with live updates turned on.
 2. `supabase/usage-cap.sql` creates the usage counter that keeps Google free.
+3. `supabase/vote-deadline.sql` makes the database refuse votes after a room's deadline.
 
 ## Keeping Google at $0
 
@@ -116,7 +118,7 @@ The limits live in `lib/usageCap.ts`.
 npm test
 ```
 
-32 tests cover matching and tie-breaks, restaurant picking, the demo room's simulated votes, Google data mapping, invite links, the usage cap, and testing-mode rooms.
+37 tests cover matching and tie-breaks, voting deadlines, restaurant picking, the demo room's simulated votes, Google data mapping, invite links, the usage cap, and testing-mode rooms.
 
 ## Project structure
 

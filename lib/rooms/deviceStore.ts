@@ -1,8 +1,10 @@
+import { deadlineAt, isVotingClosed } from "@/lib/deadline";
 import type { Participant } from "@/types/bitematch";
 import {
   MAX_PARTICIPANTS,
   RoomFullError,
   RoomNotFoundError,
+  VotingClosedError,
   colorFor,
   randomRoomCode,
   reservedCodes,
@@ -53,7 +55,7 @@ export const deviceStore: RoomStore = {
       code = randomRoomCode();
     }
     const me: Participant = { id: newId(), name: hostName, color: colorFor(0) };
-    write({ code, preferences, restaurants, participants: [me], votes: {} });
+    write({ code, preferences, restaurants, participants: [me], votes: {}, createdAt: new Date().toISOString() });
     return { code, me };
   },
 
@@ -69,6 +71,9 @@ export const deviceStore: RoomStore = {
   async castVote(code, participantId, restaurantId, vote) {
     const room = read(code);
     if (!room) throw new RoomNotFoundError(code);
+    if (isVotingClosed(deadlineAt(room.createdAt, room.preferences.deadlineMinutes), Date.now())) {
+      throw new VotingClosedError();
+    }
     write({
       ...room,
       votes: {

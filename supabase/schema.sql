@@ -52,6 +52,8 @@ drop policy if exists "votes can be changed" on public.votes;
 create policy "votes are readable"   on public.votes for select using (true);
 create policy "votes can be cast"    on public.votes for insert with check (true);
 create policy "votes can be changed" on public.votes for update using (true) with check (true);
+-- Voting deadlines: run supabase/vote-deadline.sql after this file. It replaces
+-- the two vote policies above with ones that refuse votes after a room's deadline.
 
 -- Turn on live updates for joins and votes.
 do $$
